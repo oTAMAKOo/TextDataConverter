@@ -234,7 +234,7 @@ namespace GameTextConverter
                             }
                         }
                     }
-                    
+
                     Console.WriteLine("- {0}", sheet.displayName);
                 }
 
@@ -267,10 +267,8 @@ namespace GameTextConverter
             var drawingFont = new Font(font.Name, font.Size);
 
             var size = graphics.MeasureString(cell.Text, drawingFont);
-
-            var scale = GetOSTypeScale();
-
-            return Convert.ToDouble(size.Width) / 5.7 * scale;
+            
+            return Convert.ToDouble(size.Width) / 5.7;
         }
 
         private static double CalcTextHeight(Graphics graphics, ExcelRange cell, int width)
@@ -284,17 +282,8 @@ namespace GameTextConverter
             var drawingFont = new Font(font.Name, font.Size);
 
             var size = graphics.MeasureString(cell.Text, drawingFont, pixelWidth);
-
-            var scale = GetOSTypeScale();
-
-            return (Math.Min(Convert.ToDouble(size.Height) * 72 / 96, 409) + 2) * scale;
-        }
-
-        private static float GetOSTypeScale()
-        {
-            var os = Environment.OSVersion;
             
-            return os.Platform == PlatformID.MacOSX ? 1.2f : 1f;
+            return Math.Min(Convert.ToDouble(size.Height) * 72 / 96 * 1.2, 409) + 2;
         }
     }
 }
