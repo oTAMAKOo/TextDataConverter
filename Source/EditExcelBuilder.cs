@@ -268,7 +268,9 @@ namespace GameTextConverter
 
             var size = graphics.MeasureString(cell.Text, drawingFont);
 
-            return Convert.ToDouble(size.Width) / 5.7;
+            var scale = GetOSTypeScale();
+
+            return Convert.ToDouble(size.Width) / 5.7 * scale;
         }
 
         private static double CalcTextHeight(Graphics graphics, ExcelRange cell, int width)
@@ -283,7 +285,16 @@ namespace GameTextConverter
 
             var size = graphics.MeasureString(cell.Text, drawingFont, pixelWidth);
 
-            return Math.Min(Convert.ToDouble(size.Height) * 72 / 96, 409) + 2;
+            var scale = GetOSTypeScale();
+
+            return (Math.Min(Convert.ToDouble(size.Height) * 72 / 96, 409) + 2) * scale;
+        }
+
+        private static float GetOSTypeScale()
+        {
+            var os = Environment.OSVersion;
+            
+            return os.Platform == PlatformID.MacOSX ? 1.2f : 1f;
         }
     }
 }
