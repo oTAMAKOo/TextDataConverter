@@ -36,7 +36,7 @@ namespace GameTextConverter
         
         public static void Write(string workspace, ExcelData excelData, Settings settings)
         {
-            Console.WriteLine("------ WriteCellOption ------");
+            ConsoleUtility.Progress("------ WriteCellOption ------");
 
             var rootDirectory = PathUtility.Combine(workspace, Constants.RecordFolderName);
 
@@ -87,7 +87,7 @@ namespace GameTextConverter
                             }
                         }
 
-                        Console.WriteLine("- {0}", sheet.Name);
+                        ConsoleUtility.Task("- {0}", sheet.Name);
                     }
                 }
             }
@@ -100,7 +100,7 @@ namespace GameTextConverter
 
             var excelFilePath = PathUtility.Combine(workspace, Constants.EditExcelFile);
 
-            Console.WriteLine("------ LoadCellOption ------");
+            ConsoleUtility.Progress("------ LoadCellOption ------");
 
             using (var excel = new ExcelPackage(new FileInfo(excelFilePath)))
             {
@@ -152,7 +152,7 @@ namespace GameTextConverter
                                 }
                             }
 
-                            Console.WriteLine("- {0}", sheet.Name);
+                            ConsoleUtility.Task("- {0}", sheet.Name);
                         }
                     }
                 }
@@ -223,7 +223,7 @@ namespace GameTextConverter
             {
                 colorCode = null;
 
-                Console.WriteLine("Theme color not support saved default color.\n[{0}] {1}", cell.Address, cell.Text);
+                ConsoleUtility.Warning("Theme color not support saved default color.\n[{0}] {1}", cell.Address, cell.Text);
             }
 
             return colorCode;

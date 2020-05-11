@@ -27,7 +27,7 @@ namespace GameTextConverter
 
             var editExcelPath = PathUtility.Combine(workspace, Constants.EditExcelFile);
 
-            Console.WriteLine("------ Build edit excel file ------");
+            ConsoleUtility.Progress("------ Build edit excel file ------");
 
             //------ エディット用にエクセルファイルを複製 ------
 
@@ -55,6 +55,8 @@ namespace GameTextConverter
                     throw new Exception(string.Format("Template worksheet {0} not found.", settings.TemplateSheetName));
                 }
 
+                templateSheet.Cells.AutoFitColumns(20f, 100f);
+
                 // シート作成.
 
                 foreach (var sheet in excelData.sheets)
@@ -74,8 +76,6 @@ namespace GameTextConverter
                     // タブ選択状態解除.
                     newWorksheet.View.TabSelected = false;
                 }
-
-                Console.WriteLine("Create worksheet.");
 
                 // 先頭のシートをアクティブ化.
 
@@ -121,10 +121,6 @@ namespace GameTextConverter
                     }
                 }
 
-                Console.WriteLine("Sort worksheet.");
-
-                Console.WriteLine("Import worksheet.");
-
                 // レコード情報設定.
 
                 var graphics = Graphics.FromImage(new Bitmap(1, 1));
@@ -133,9 +129,21 @@ namespace GameTextConverter
                 {
                     var worksheet = worksheets.FirstOrDefault(x => x.Name == sheet.displayName);
 
+                    if (worksheet == null)
+                    {
+                        ConsoleUtility.Error("Worksheet:{0} not found.", sheet.displayName);
+                        continue;
+                    }
+
                     var dimension = worksheet.Dimension;
 
                     var records = excelData.records.GetValueOrDefault(sheet.sheetName);
+
+                    if (records == null)
+                    {
+                        ConsoleUtility.Error("Sheet:{0} not found.", sheet.sheetName);
+                        continue;
+                    }
 
                     worksheet.SetValue(Constants.SheetNameAddress.Y, Constants.SheetNameAddress.X, sheet.sheetName);
 
@@ -186,8 +194,6 @@ namespace GameTextConverter
 
                     var maxRow = records.Max(x => x.line) + 1;
                     
-                    worksheet.Cells.AutoFitColumns(20f, 100f);
-
                     for (var c = 1; c < dimension.End.Column; c++)
                     {
                         var columnWidth = worksheet.Column(c).Width;
@@ -235,7 +241,7 @@ namespace GameTextConverter
                         }
                     }
 
-                    Console.WriteLine("- {0}", sheet.displayName);
+                    ConsoleUtility.Task("- {0}", sheet.displayName);
                 }
 
                 // 保存.

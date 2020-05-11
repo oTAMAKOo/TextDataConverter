@@ -48,7 +48,9 @@ namespace GameTextConverter
 
             var workspace = options.Value.Workspace;
 
-            Console.WriteLine("\nWorkspace : {0}\n", workspace);
+            Console.WriteLine();
+
+            ConsoleUtility.Info("Workspace : {0}", workspace);
 
             try
             {
@@ -86,6 +88,8 @@ namespace GameTextConverter
                 Exit(1, e.ToString());
             }
 
+            ConsoleUtility.Info("Complete!");
+
             // 終了.
 
             Exit(0);
@@ -118,7 +122,7 @@ namespace GameTextConverter
         {
             if (!string.IsNullOrEmpty(message))
             {
-                Console.WriteLine(message);
+                ConsoleUtility.Error(message);
             }
 
             // 正常終了以外ならコンソールを閉じない.

@@ -84,6 +84,7 @@
     <Compile Include="Library\DictionaryExtensions.cs" />
     <Compile Include="Library\DirectoryUtility.cs" />
     <Compile Include="Library\EnumerableExtensions.cs" />
+    <Compile Include="Source\ConsoleUtility.cs" />
     <Compile Include="Source\FileSystem.cs" />
     <Compile Include="Library\FileUtility.cs" />
     <Compile Include="Library\NaturalComparer.cs" />

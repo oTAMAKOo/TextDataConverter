@@ -30,7 +30,7 @@ namespace GameTextConverter
 
             // レコード情報読み込み.
 
-            Console.WriteLine("------ LoadRecordData ------");
+            ConsoleUtility.Progress("------ LoadRecordData ------");
 
             var worksheetRecords = new Dictionary<string, RecordData[]>();
 
@@ -43,7 +43,7 @@ namespace GameTextConverter
                     worksheetRecords.Add(worksheet.sheetName, records);
                 }
 
-                Console.WriteLine("- {0}", worksheet.displayName);
+                ConsoleUtility.Task("- {0}", worksheet.displayName);
             }
 
             var excelData = new ExcelData()
@@ -63,7 +63,7 @@ namespace GameTextConverter
 
             var sheets = new List<SheetData>();
 
-            Console.WriteLine("------ LoadSheetData ------");
+            ConsoleUtility.Progress("------ LoadSheetData ------");
 
             foreach (var sheetFile in sheetFiles)
             {
@@ -71,7 +71,7 @@ namespace GameTextConverter
 
                 if (sheet != null)
                 {
-                    Console.WriteLine("- {0}", sheet.displayName);
+                    ConsoleUtility.Task("- {0}", sheet.displayName);
 
                     sheets.Add(sheet);
                 }

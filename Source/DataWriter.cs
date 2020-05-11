@@ -27,7 +27,7 @@ namespace GameTextConverter
 
             var rootDirectory = PathUtility.Combine(workspace, Constants.RecordFolderName);
 
-            Console.WriteLine("------ WriteData ------");
+            ConsoleUtility.Progress("------ WriteData ------");
 
             foreach (var worksheet in excelData.sheets)
             {
@@ -68,7 +68,7 @@ namespace GameTextConverter
                     FileSystem.WriteFile(filePath, record, settings.FileFormat);
                 }
 
-                Console.WriteLine("- {0}", worksheet.sheetName);
+                ConsoleUtility.Task("- {0}", worksheet.sheetName);
             }
         }
     
@@ -79,7 +79,7 @@ namespace GameTextConverter
 
             if (!File.Exists(excelFilePath)) { return null; }
 
-            Console.WriteLine("------ LoadExcelData ------");
+            ConsoleUtility.Progress("------ LoadExcelData ------");
 
             var sheets = new List<SheetData>();
             var records = new Dictionary<string, RecordData[]>();
@@ -180,7 +180,7 @@ namespace GameTextConverter
 
                     sheets.Add(sheetData);
 
-                    Console.WriteLine("- {0}", sheetData.displayName);
+                    ConsoleUtility.Task("- {0}", sheetData.displayName);
                 }
             }
 
