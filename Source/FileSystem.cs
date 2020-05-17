@@ -30,6 +30,7 @@ namespace GameTextConverter
 
                                     var jsonSerializer = new JsonSerializer()
                                     {
+                                        Formatting = Formatting.Indented,
                                         NullValueHandling = NullValueHandling.Ignore,
                                     };
 
@@ -72,6 +73,7 @@ namespace GameTextConverter
                                 {
                                     var jsonSerializer = new JsonSerializer()
                                     {
+                                        Formatting = Formatting.Indented,
                                         NullValueHandling = NullValueHandling.Ignore,
                                     };
 
