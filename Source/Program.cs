@@ -48,34 +48,40 @@ namespace GameTextConverter
 
             var workspace = options.Value.Workspace;
 
+            var mode = options.Value.Mode;
+
+            //==== 開発用 ========================================
+
+            //workspace = Directory.GetCurrentDirectory();
+
+            //mode = "import";
+
+            //====================================================
+
             Console.WriteLine();
 
             ConsoleUtility.Info("Workspace : {0}", workspace);
 
             try
             {
-                switch (options.Value.Mode)
+                switch (mode)
                 {
                     case "import":
                         {
                             if (!IsEditExcelFileLocked(workspace))
                             {
-                                var excelData = DataLoader.Load(workspace, settings);
+                                var sheetData = DataLoader.Load(workspace, settings);
 
-                                EditExcelBuilder.Build(workspace, excelData, settings);
-
-                                RecordOption.Load(workspace, excelData, settings);
+                                EditExcelBuilder.Build(workspace, sheetData, settings);
                             }
                         }
                         break;
 
                     case "export":
                         {
-                            var excelData = DataWriter.LoadExcelData(workspace, settings);
+                            var sheetData = DataWriter.LoadExcelData(workspace, settings);
 
-                            DataWriter.Write(workspace, excelData, settings);
-
-                            RecordOption.Write(workspace, excelData, settings);
+                            DataWriter.Write(workspace, sheetData, settings);
                         }
                         break;
 

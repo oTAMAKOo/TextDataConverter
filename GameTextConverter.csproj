@@ -91,7 +91,7 @@
     <Compile Include="Library\PathUtility.cs" />
     <Compile Include="Library\StringExtensions.cs" />
     <Compile Include="Source\Data.cs" />
-    <Compile Include="Source\RecordOption.cs" />
+    <Compile Include="Source\CellOption.cs" />
     <Compile Include="Source\Constants.cs" />
     <Compile Include="Source\EditExcelBuilder.cs" />
     <Compile Include="Library\ExcelUtility.cs" />

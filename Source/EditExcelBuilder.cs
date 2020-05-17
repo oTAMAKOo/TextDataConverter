@@ -21,7 +21,7 @@ namespace GameTextConverter
 
         //----- method -----
 
-        public static void Build(string workspace, ExcelData excelData, Settings settings)
+        public static void Build(string workspace, SheetData[] sheetData, Settings settings)
         {
             var originExcelPath = Path.GetFullPath(settings.ExcelPath);
 
@@ -59,17 +59,17 @@ namespace GameTextConverter
 
                 // シート作成.
 
-                foreach (var sheet in excelData.sheets)
+                foreach (var data in sheetData)
                 {
-                    if (string.IsNullOrEmpty(sheet.displayName)) { continue; }
+                    if (string.IsNullOrEmpty(data.displayName)) { continue; }
 
-                    if (worksheets.Any(x => x.Name == sheet.displayName))
+                    if (worksheets.Any(x => x.Name == data.displayName))
                     {
-                        throw new Exception(string.Format("Worksheet create failed. Worksheet {0} already exists", sheet.displayName));
+                        throw new Exception(string.Format("Worksheet create failed. Worksheet {0} already exists", data.displayName));
                     }
 
                     // テンプレートシートを複製.                    
-                    var newWorksheet = worksheets.Add(sheet.displayName, templateSheet);
+                    var newWorksheet = worksheets.Add(data.displayName, templateSheet);
 
                     // 保護解除.
                     newWorksheet.Protection.IsProtected = false;
@@ -94,13 +94,13 @@ namespace GameTextConverter
                 {
                     loop = false;
                     
-                    foreach (var sheet in excelData.sheets)
+                    foreach (var data in sheetData)
                     {
-                        if (worksheets.Count <= sheet.index) { continue; }
+                        if (worksheets.Count <= data.index) { continue; }
 
-                        var worksheet = worksheets.FirstOrDefault(x => x.Name == sheet.displayName);
+                        var worksheet = worksheets.FirstOrDefault(x => x.Name == data.displayName);
 
-                        if (worksheet != null && worksheet.Index != sheet.index)
+                        if (worksheet != null && worksheet.Index != data.index)
                         {
                             loop = true;
                             break;
@@ -109,7 +109,7 @@ namespace GameTextConverter
 
                     foreach (var worksheet in worksheets)
                     {
-                        var sheet = excelData.sheets.FirstOrDefault(x => x.index == worksheet.Index + 1);
+                        var sheet = sheetData.FirstOrDefault(x => x.index == worksheet.Index + 1);
 
                         if (sheet == null) { continue; }
 
@@ -125,29 +125,25 @@ namespace GameTextConverter
 
                 var graphics = Graphics.FromImage(new Bitmap(1, 1));
 
-                foreach (var sheet in excelData.sheets)
+                foreach (var data in sheetData)
                 {
-                    var worksheet = worksheets.FirstOrDefault(x => x.Name == sheet.displayName);
+                    var worksheet = worksheets.FirstOrDefault(x => x.Name == data.displayName);
 
                     if (worksheet == null)
                     {
-                        ConsoleUtility.Error("Worksheet:{0} not found.", sheet.displayName);
+                        ConsoleUtility.Error("Worksheet:{0} not found.", data.displayName);
                         continue;
                     }
 
                     var dimension = worksheet.Dimension;
 
-                    var records = excelData.records.GetValueOrDefault(sheet.sheetName);
+                    var records = data.records;
 
-                    if (records == null)
-                    {
-                        ConsoleUtility.Error("Sheet:{0} not found.", sheet.sheetName);
-                        continue;
-                    }
+                    if (records == null){ continue; }
 
-                    worksheet.SetValue(Constants.SheetNameAddress.Y, Constants.SheetNameAddress.X, sheet.sheetName);
+                    worksheet.SetValue(Constants.SheetNameAddress.Y, Constants.SheetNameAddress.X, data.sheetName);
 
-                    SetGuid(worksheet, Constants.SheetGuidAddress.Y, Constants.SheetGuidAddress.X, sheet.guid);
+                    SetGuid(worksheet, Constants.SheetGuidAddress.Y, Constants.SheetGuidAddress.X, data.guid);
 
                     // レコード投入用セルを用意.
 
@@ -170,29 +166,39 @@ namespace GameTextConverter
 
                     // 値設定.
 
-                    foreach (var record in records)
+                    for (var i = 0; i < records.Length; i++)
                     {
-                        var row = record.line;
+                        var r = Constants.RecordStartRow + i;
+
+                        var record = records[i];
 
                         // Guid.
-                        SetGuid(worksheet, row, Constants.GuidColumn, record.guid);
+                        SetGuid(worksheet, r, Constants.GuidColumn, record.guid);
 
                         // Enum名.
-                        worksheet.SetValue(row, Constants.EnumNameColumn, record.enumName);
+                        worksheet.SetValue(r, Constants.EnumNameColumn, record.enumName);
 
                         // 説明.
-                        worksheet.SetValue(row, Constants.DescriptionColumn, record.description);
+                        worksheet.SetValue(r, Constants.DescriptionColumn, record.description);
 
-                        // テキスト.
-                        for (var i = 0; i < record.texts.Length; i++)
+                        // テキスト・オプション情報.
+                        for (var c = 0; c < record.contents.Length; c++)
                         {
-                            worksheet.SetValue(row, Constants.TextStartColumn + i, record.texts[i]);
-                        }                        
+                            var content = record.contents[c];
+
+                            if (content == null) { continue; }
+                            
+                            worksheet.SetValue(r, Constants.TextStartColumn + c, content.text);
+
+                            var cell = worksheet.Cells[r, Constants.TextStartColumn + c];
+                            
+                            CellOption.Set(cell, content.comment, content.fontColor, content.backgroundColor);
+                        }
                     }
 
                     // セルサイズを調整.
 
-                    var maxRow = records.Max(x => x.line) + 1;
+                    var maxRow = Constants.RecordStartRow + records.Length + 1;
                     
                     for (var c = 1; c < dimension.End.Column; c++)
                     {
@@ -241,7 +247,7 @@ namespace GameTextConverter
                         }
                     }
 
-                    ConsoleUtility.Task("- {0}", sheet.displayName);
+                    ConsoleUtility.Task("- {0}", data.displayName);
                 }
 
                 // 保存.

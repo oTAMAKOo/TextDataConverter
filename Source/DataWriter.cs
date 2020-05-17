@@ -21,59 +21,51 @@ namespace GameTextConverter
 
         //----- method -----
 
-        public static void Write(string workspace, ExcelData excelData, Settings settings)
+        public static void Write(string workspace, SheetData[] sheetData, Settings settings)
         {
             CreateCleanDirectory(workspace);
 
             var rootDirectory = PathUtility.Combine(workspace, Constants.RecordFolderName);
 
+            var extension = string.Empty;
+
+            switch (settings.FileFormat)
+            {
+                case FileSystem.Format.Json:
+                    extension = Constants.JsonFileExtension;
+                    break;
+                case FileSystem.Format.Yaml:
+                    extension = Constants.YamlFileExtension;
+                    break;
+            }
+
             ConsoleUtility.Progress("------ WriteData ------");
 
-            foreach (var worksheet in excelData.sheets)
+            foreach (var data in sheetData)
             {
-                if (string.IsNullOrEmpty(worksheet.sheetName)) { continue; }
+                if (string.IsNullOrEmpty(data.sheetName)) { continue; }
 
-                var records = excelData.records.GetValueOrDefault(worksheet.sheetName, new RecordData[0]);
+                var records = data.records;
 
-                if (records.IsEmpty()) { continue; }
-
-                var directory = PathUtility.Combine(rootDirectory, worksheet.sheetName);
-
-                if (!Directory.Exists(directory))
-                {
-                    Directory.CreateDirectory(directory);
-                }
+                if (records == null || records.IsEmpty()) { continue; }
 
                 // シート情報書き出し.
 
-                if (!string.IsNullOrEmpty(worksheet.sheetName))
+                if (!string.IsNullOrEmpty(data.sheetName))
                 {
-                    var fileName = worksheet.sheetName + Constants.SheetFileExtension;
+                    var fileName = data.sheetName + extension;
 
                     var filePath = PathUtility.Combine(rootDirectory, fileName);
 
-                    FileSystem.WriteFile(filePath, worksheet, settings.FileFormat);
+                    FileSystem.WriteFile(filePath, data, settings.FileFormat);
                 }
 
-                // レコード情報書き出し.
-
-                foreach (var record in records)
-                {
-                    if (string.IsNullOrEmpty(record.enumName)) { continue; }
-
-                    var fileName = record.enumName + Constants.RecordFileExtension;
-
-                    var filePath = PathUtility.Combine(directory, fileName);
-
-                    FileSystem.WriteFile(filePath, record, settings.FileFormat);
-                }
-
-                ConsoleUtility.Task("- {0}", worksheet.sheetName);
+                ConsoleUtility.Task("- {0}", data.sheetName);
             }
         }
     
         /// <summary> レコード情報読み込み(.xlsx) </summary>
-        public static ExcelData LoadExcelData(string workspace, Settings settings)
+        public static SheetData[] LoadExcelData(string workspace, Settings settings)
         {
             var excelFilePath = PathUtility.Combine(workspace, Constants.EditExcelFile);
 
@@ -82,7 +74,6 @@ namespace GameTextConverter
             ConsoleUtility.Progress("------ LoadExcelData ------");
 
             var sheets = new List<SheetData>();
-            var records = new Dictionary<string, RecordData[]>();
 
             using (var excel = new ExcelPackage(new FileInfo(excelFilePath)))
             {
@@ -115,7 +106,7 @@ namespace GameTextConverter
                         sheetName = sheetEnumName,
                     };
 
-                    var recordList = new List<RecordData>();
+                    var records = new List<RecordData>();
 
                     for (var r = Constants.RecordStartRow; r <= worksheet.Dimension.End.Row; r++)
                     {
@@ -139,8 +130,6 @@ namespace GameTextConverter
                         var record = new RecordData()
                         {
                             guid = recordGuid,
-                            sheet = sheetData.guid,
-                            line = r,
                             enumName = enumName,
                             description = description,
                         };
@@ -162,21 +151,31 @@ namespace GameTextConverter
 
                         // 実テキスト取得.
 
-                        var texts = new List<string>();
+                        var contents = new List<ContentData>();
 
                         for (var c = Constants.TextStartColumn; c < textEndColumn; c++)
                         {
                             var text = ConvertRowValue<string>(rowValues, c);
 
-                            texts.Add(text);
+                            var option = CellOption.Get(worksheet.Cells[r, c]);
+
+                            var data = new ContentData()
+                            {
+                                text = text,
+                                comment = option != null ? option.Item1 : null,
+                                fontColor = option != null ? option.Item2 : null,
+                                backgroundColor = option != null ? option.Item3 : null,
+                            };
+
+                            contents.Add(data);
                         }
 
-                        record.texts = texts.ToArray();
+                        record.contents = contents.ToArray();
 
-                        recordList.Add(record);
+                        records.Add(record);
                     }
 
-                    records.Add(sheetEnumName, recordList.ToArray());
+                    sheetData.records = records.ToArray();
 
                     sheets.Add(sheetData);
 
@@ -184,13 +183,7 @@ namespace GameTextConverter
                 }
             }
 
-            var excelData = new ExcelData()
-            {
-                sheets = sheets.ToArray(),
-                records = records,
-            };
-
-            return excelData;
+            return sheets.ToArray();
         }
 
         private static void CreateCleanDirectory(string exportPath)

@@ -6,17 +6,14 @@ namespace GameTextConverter
 {
     public static class Constants
     {
-        /// <summary> レコードフォルダ名 </summary>
-        public const string RecordFolderName = "Records";
+        /// <summary> データフォルダ名 </summary>
+        public const string RecordFolderName = "Contents";
 
-        /// <summary> シートファイル拡張子 </summary>
-        public const string SheetFileExtension = ".sheet";
+        /// <summary> Json拡張子 </summary>
+        public const string JsonFileExtension = ".json";
 
-        /// <summary> レコードファイル拡張子 </summary>
-        public const string RecordFileExtension = ".record";
-
-        /// <summary> セルオプションファイル拡張子 </summary>
-        public const string CellOptionFileExtension = ".option";
+        /// <summary> Yaml拡張子 </summary>
+        public const string YamlFileExtension = ".yaml";
 
         /// <summary> シートGuid定義アドレス </summary>
         public static readonly Point SheetGuidAddress = new Point(1, 1);

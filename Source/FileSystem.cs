@@ -28,7 +28,10 @@ namespace GameTextConverter
                                 {
                                     jsonTextWriter.Formatting = Formatting.Indented;
 
-                                    var jsonSerializer = new JsonSerializer();
+                                    var jsonSerializer = new JsonSerializer()
+                                    {
+                                        NullValueHandling = NullValueHandling.Ignore,
+                                    };
 
                                     jsonSerializer.Serialize(jsonTextWriter, value);
                                 }
@@ -37,7 +40,11 @@ namespace GameTextConverter
 
                         case Format.Yaml:
                             {
-                                var yamlSerializer = new SerializerBuilder().Build();
+                                var builder = new SerializerBuilder();
+
+                                builder.ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitNull);
+
+                                var yamlSerializer = builder.Build();
 
                                 yamlSerializer.Serialize(writer, value);
                             }
@@ -63,7 +70,10 @@ namespace GameTextConverter
                             {
                                 using (var jsonTextReader = new JsonTextReader(reader))
                                 {
-                                    var jsonSerializer = new JsonSerializer();
+                                    var jsonSerializer = new JsonSerializer()
+                                    {
+                                        NullValueHandling = NullValueHandling.Ignore,
+                                    };
 
                                     result = jsonSerializer.Deserialize<T>(jsonTextReader);
                                 }
@@ -74,9 +84,13 @@ namespace GameTextConverter
                             {
                                 var contents = reader.ReadToEnd();
 
-                                var deserializer = new DeserializerBuilder().IgnoreUnmatchedProperties().Build();
+                                var builder = new DeserializerBuilder();
 
-                                result = deserializer.Deserialize<T>(contents);
+                                builder.IgnoreUnmatchedProperties();
+
+                                var yamlDeserializer = builder.Build();
+                                
+                                result = yamlDeserializer.Deserialize<T>(contents);
                             }
                             break;
                     }
