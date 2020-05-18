@@ -1,0 +1,8 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: mono:5.20.1.19
+    steps:
+      - checkout
+      - run: mono /usr/lib/mono/msbuild/15.0/bin/MSBuild.dll
