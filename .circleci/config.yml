@@ -9,4 +9,4 @@ jobs:
       - run: mv /root/project/bin/Debug /root/project/bin/Linux
       - run: cd /root/project/bin && zip -r Linux.zip Linux
       - store_artifacts:
-        path: /root/project/bin/Linux.zip
+          path: /root/project/bin/Linux.zip
