@@ -20,42 +20,27 @@ namespace GameTextConverter
         /// <summary> エクセル情報読み込み </summary>
         public static SheetData[] Load(string workspace, Settings settings)
         {
-            var rootDirectory = PathUtility.Combine(workspace, Constants.RecordFolderName);
+            var rootDirectory = PathUtility.Combine(workspace, Constants.ContentsFolderName);
 
             if (!Directory.Exists(rootDirectory)) { throw new DirectoryNotFoundException(); }
 
             // シート情報読み込み.
 
-            var sheetData = LoadSheetData(rootDirectory, settings);
-            
-            return sheetData;
-        }
+            var extension = settings.GetFileExtension();
 
-        private static SheetData[] LoadSheetData(string rootDirectory, Settings settings)
-        {
-            var extension = string.Empty;
-
-            switch (settings.FileFormat)
-            {
-                case FileSystem.Format.Json:
-                    extension = Constants.JsonFileExtension;
-                    break;
-                case FileSystem.Format.Yaml:
-                    extension = Constants.YamlFileExtension;
-                    break;
-            }
-            
             var sheetFiles = Directory.EnumerateFiles(rootDirectory, "*.*", SearchOption.TopDirectoryOnly)
                 .Where(x => Path.GetExtension(x) == extension)
                 .ToArray();
 
             var sheets = new List<SheetData>();
 
+            if (sheetFiles.IsEmpty()){ return new SheetData[0]; }
+
             ConsoleUtility.Progress("------ LoadSheetData ------");
 
             foreach (var sheetFile in sheetFiles)
             {
-                var sheet = FileSystem.LoadFile<SheetData>(sheetFile, settings.FileFormat);
+                var sheet = LoadSheetData(sheetFile, settings);
 
                 if (sheet != null)
                 {
@@ -66,6 +51,11 @@ namespace GameTextConverter
             }
 
             return sheets.ToArray();
+        }
+
+        public static SheetData LoadSheetData(string filePath, Settings settings)
+        {
+            return FileSystem.LoadFile<SheetData>(filePath, settings.FileFormat);
         }
     }
 }

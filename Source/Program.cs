@@ -54,7 +54,7 @@ namespace GameTextConverter
 
             //workspace = Directory.GetCurrentDirectory();
 
-            //mode = "import";
+            //mode = "export";
 
             //====================================================
 
@@ -79,7 +79,7 @@ namespace GameTextConverter
 
                     case "export":
                         {
-                            var sheetData = DataWriter.LoadExcelData(workspace, settings);
+                            var sheetData = ExcelDataLoader.LoadExcelData(workspace, settings);
 
                             DataWriter.Write(workspace, sheetData, settings);
                         }
@@ -121,7 +121,7 @@ namespace GameTextConverter
         // レコードファイルのディレクトリ取得.
         private static string GetRecordFileDirectory(string directory)
         {
-            return PathUtility.Combine(directory, Constants.RecordFolderName);
+            return PathUtility.Combine(directory, Constants.ContentsFolderName);
         }
 
         private static void Exit(int exitCode, string message = "")

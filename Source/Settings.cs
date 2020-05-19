@@ -79,5 +79,22 @@ namespace GameTextConverter
 
             return true;
         }
+
+        public string GetFileExtension()
+        {
+            var extension = string.Empty;
+
+            switch (FileFormat)
+            {
+                case FileSystem.Format.Json:
+                    extension = Constants.JsonFileExtension;
+                    break;
+                case FileSystem.Format.Yaml:
+                    extension = Constants.YamlFileExtension;
+                    break;
+            }
+
+            return extension;
+        }
     }
 }
