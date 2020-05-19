@@ -21,6 +21,19 @@ namespace Extensions
             }
         }
 
+
+        public static T ConvertValue<T>(object[] values, int index)
+        {
+            if (index < 0 || values.Length <= index)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            var value = values[index];
+
+            return ConvertValue<T>(value);
+        }
+
         /// <summary> 1行取得. </summary>
         public static IEnumerable<object> GetRowValues(ExcelWorksheet sheet, int row)
         {

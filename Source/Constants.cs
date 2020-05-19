@@ -7,7 +7,7 @@ namespace GameTextConverter
     public static class Constants
     {
         /// <summary> データフォルダ名 </summary>
-        public const string RecordFolderName = "Contents";
+        public const string ContentsFolderName = "Contents";
 
         /// <summary> Json拡張子 </summary>
         public const string JsonFileExtension = ".json";
