@@ -120,9 +120,29 @@ namespace Extensions
         /// </summary>
         public static void Clean(string path)
         {
-            if (string.IsNullOrEmpty(path)){ return; }
+            if (string.IsNullOrEmpty(path)) { return; }
 
             if (!Directory.Exists(path)) { return; }
+
+            // ファイル削除.
+
+            var directoryInfo = new DirectoryInfo(path);
+
+            foreach (var file in directoryInfo.GetFiles())
+            {
+                if (FileUtility.IsFileLocked(file.FullName)) { continue; }
+
+                try
+                {
+                    file.Delete();
+                }
+                catch (Exception)
+                {
+                    // ignored.
+                }
+            }
+
+            // フォルダ削除.
 
             var directories = Directory.GetDirectories(path);
 
