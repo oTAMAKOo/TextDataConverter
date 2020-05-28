@@ -16,6 +16,13 @@ namespace GameTextConverter
 
         public static void WriteFile<T>(string filePath, T value, Format format)
         {
+            var directory = Path.GetDirectoryName(filePath);
+
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
             using (var file = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
             {
                 using (var writer = new StreamWriter(file, new UTF8Encoding(false)))
