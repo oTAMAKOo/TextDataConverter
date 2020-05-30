@@ -14,6 +14,8 @@ namespace GameTextConverter
         {
             /// <summary> フォーマット </summary>
             public string format = string.Empty;
+            /// <summary> 出力Excelファイル名 </summary>
+            public string editExcelFileName = string.Empty;
         }
 
         private class ExcelSettings
@@ -48,6 +50,12 @@ namespace GameTextConverter
 
                 return FileSystem.Format.Yaml;
             }
+        }
+
+        /// <summary> 編集Excelファイル名 </summary>
+        public string EditExcelFileName
+        {
+            get { return Path.ChangeExtension(fileSettings.editExcelFileName, Constants.ExcelExtension); }
         }
 
         /// <summary> エクセルファイルパス </summary>
