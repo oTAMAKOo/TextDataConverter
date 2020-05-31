@@ -25,7 +25,7 @@ namespace GameTextConverter
         {
             var originExcelPath = Path.GetFullPath(settings.ExcelPath);
 
-            var editExcelPath = PathUtility.Combine(workspace, Constants.EditExcelFile);
+            var editExcelPath = PathUtility.Combine(workspace, settings.EditExcelFileName);
 
             ConsoleUtility.Progress("------ Build edit excel file ------");
 

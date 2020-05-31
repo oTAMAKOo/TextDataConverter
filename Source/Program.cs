@@ -68,7 +68,7 @@ namespace GameTextConverter
                 {
                     case "import":
                         {
-                            if (!IsEditExcelFileLocked(workspace))
+                            if (!IsEditExcelFileLocked(workspace, settings))
                             {
                                 var sheetData = DataLoader.Load(workspace, settings);
 
@@ -101,9 +101,9 @@ namespace GameTextConverter
             Exit(0);
         }
 
-        private static bool IsEditExcelFileLocked(string workspace)
+        private static bool IsEditExcelFileLocked(string workspace, Settings settings)
         {
-            var editExcelPath = PathUtility.Combine(workspace, Constants.EditExcelFile);
+            var editExcelPath = PathUtility.Combine(workspace, settings.EditExcelFileName);
 
             // ファイルが存在＋ロック時はエラー.
             if (File.Exists(editExcelPath))

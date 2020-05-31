@@ -14,7 +14,7 @@ namespace GameTextConverter
         /// <summary> レコード情報読み込み(.xlsx) </summary>
         public static SheetData[] LoadExcelData(string workspace, Settings settings)
         {
-            var excelFilePath = PathUtility.Combine(workspace, Constants.EditExcelFile);
+            var excelFilePath = PathUtility.Combine(workspace, settings.EditExcelFileName);
 
             if (!File.Exists(excelFilePath)) { return null; }
 

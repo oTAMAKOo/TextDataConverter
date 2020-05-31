@@ -15,6 +15,9 @@ namespace GameTextConverter
         /// <summary> Yaml拡張子 </summary>
         public const string YamlFileExtension = ".yaml";
 
+        /// <summary> Excel拡張子 </summary>
+        public const string ExcelExtension = ".xlsx";
+
         /// <summary> シートGuid定義アドレス </summary>
         public static readonly Point SheetGuidAddress = new Point(1, 1);
 
@@ -38,8 +41,5 @@ namespace GameTextConverter
 
         /// <summary> データ開始行 </summary>
         public const int RecordStartRow = 3;
-
-        /// <summary> 編集エクセルファイル </summary>
-        public const string EditExcelFile = "GameText.xlsx";
     }
 }
