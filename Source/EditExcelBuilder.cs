@@ -56,6 +56,10 @@ namespace GameTextConverter
                 }
 
                 templateSheet.Cells.AutoFitColumns(20f, 100f);
+                
+                // ソート.
+
+                sheetData = sheetData.OrderBy(x => x.index).ToArray();
 
                 // シート作成.
 
@@ -77,6 +81,77 @@ namespace GameTextConverter
                     newWorksheet.View.TabSelected = false;
                 }
 
+                // Indexが重複している場合は後ろに詰める.
+
+                var duplicates = sheetData.GroupBy(x => x.index)
+                    .Where(x => 1 < x.Count())
+                    .Select(group => group.Key)
+                    .ToArray();
+
+                if (duplicates.Any())
+                {
+                    var index = -1;
+
+                    foreach (var data in sheetData)
+                    {
+                        if (data.index == index)
+                        {
+                            data.index = index + 1;
+
+                            index = data.index;
+                        }
+
+                        index = data.index;
+                    }
+                }
+
+                // シート順番入れ替え.
+
+                if (worksheets.Any())
+                {
+                    SheetData data = null;
+
+                    // 先頭シート.
+
+                    data = sheetData.FirstOrDefault(x => x.index == 1);
+
+                    if (data != null)
+                    {
+                        worksheets.MoveToStart(data.displayName);
+                    }
+
+                    // 並べ替え.
+
+                    var targets = sheetData.ToList();
+
+                    var sheetIndex = 2;
+                    var positionIndex = 1;
+
+                    while (targets.Any())
+                    {
+                        data = targets.FirstOrDefault(x => x.index == sheetIndex);
+
+                        if (data != null)
+                        {
+                            var index = worksheets.IndexOf(x => x.Name == data.displayName) + 1;
+
+                            worksheets.MoveAfter(index, positionIndex);
+
+                            targets.Remove(data);
+                        }
+
+                        if (targets.All(x => x.index != sheetIndex))
+                        {
+                            sheetIndex++;
+                        }
+
+                        if (positionIndex + 1 < worksheets.Count)
+                        {
+                            positionIndex++;
+                        }
+                    }
+                }
+
                 // 先頭のシートをアクティブ化.
 
                 var firstWorksheet = worksheets.FirstOrDefault();
@@ -84,41 +159,6 @@ namespace GameTextConverter
                 if (firstWorksheet != null)
                 {
                     firstWorksheet.View.TabSelected = true;
-                }
-
-                // シート順番入れ替え.
-
-                var loop = true;
-
-                while (loop)
-                {
-                    loop = false;
-                    
-                    foreach (var data in sheetData)
-                    {
-                        if (worksheets.Count <= data.index) { continue; }
-
-                        var worksheet = worksheets.FirstOrDefault(x => x.Name == data.displayName);
-
-                        if (worksheet != null && worksheet.Index != data.index)
-                        {
-                            loop = true;
-                            break;
-                        }
-                    }
-
-                    foreach (var worksheet in worksheets)
-                    {
-                        var sheet = sheetData.FirstOrDefault(x => x.index == worksheet.Index + 1);
-
-                        if (sheet == null) { continue; }
-
-                        if (sheet.displayName == worksheet.Name && sheet.index == worksheet.Index) { continue; }
-
-                        var moveSheet = worksheets.FirstOrDefault(x => x.Name == sheet.displayName);
-
-                        worksheets.MoveAfter(moveSheet.Index, worksheet.Index);
-                    }
                 }
 
                 // レコード情報設定.

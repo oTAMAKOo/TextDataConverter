@@ -50,13 +50,15 @@ namespace GameTextConverter
 
             var mode = options.Value.Mode;
 
-            //==== 開発用 ========================================
+            /*=== 開発用 ========================================
 
-            //workspace = Directory.GetCurrentDirectory();
+            workspace = @"";
 
-            //mode = "export";
+            Directory.SetCurrentDirectory(workspace);
 
-            //====================================================
+            mode = "import";
+
+            //==================================================*/
 
             Console.WriteLine();
 
