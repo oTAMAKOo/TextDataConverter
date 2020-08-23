@@ -52,11 +52,15 @@ namespace GameTextConverter
 
             /*=== 開発用 ========================================
 
+            #if DEBUG
+
             workspace = @"";
 
             Directory.SetCurrentDirectory(workspace);
 
             mode = "import";
+
+            #endif
 
             //==================================================*/
 
@@ -72,18 +76,24 @@ namespace GameTextConverter
                         {
                             if (!IsEditExcelFileLocked(workspace, settings))
                             {
-                                var sheetData = DataLoader.Load(workspace, settings);
+                                var indexData = DataLoader.LoadSheetIndex(workspace, settings);
 
-                                EditExcelBuilder.Build(workspace, sheetData, settings);
+                                var sheetData = DataLoader.LoadAllSheetData(workspace, settings);
+
+                                EditExcelBuilder.Build(workspace, indexData, sheetData, settings);
                             }
                         }
                         break;
 
                     case "export":
                         {
-                            var sheetData = ExcelDataLoader.LoadExcelData(workspace, settings);
+                            var sheetData = ExcelDataLoader.LoadSheetData(workspace, settings);
 
-                            DataWriter.Write(workspace, sheetData, settings);
+                            DataWriter.WriteAllSheetData(workspace, sheetData, settings);
+
+                            var sheetNames = ExcelDataLoader.LoadSheetNames(workspace, settings);
+
+                            DataWriter.WriteSheetIndex(workspace, sheetNames, settings);
                         }
                         break;
 

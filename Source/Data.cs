@@ -1,16 +1,16 @@
 ﻿
-using System;
-using System.Collections.Generic;
-
 namespace GameTextConverter
 {
+    public sealed class IndexData
+    {
+        public string[] sheetNames = null;
+    }
+
     public sealed class SheetData
     {
         public string sheetName = null;
 
         public string displayName = null;
-
-        public int index = 0;
 
         public string guid = null;
         
