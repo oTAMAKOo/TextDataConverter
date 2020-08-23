@@ -87,6 +87,8 @@ namespace GameTextConverter
                     {
                         var sheetName = indexData.sheetNames[i];
 
+                        if(worksheets.All(x => x.Name != sheetName)){ continue; }
+
                         worksheets.MoveToStart(sheetName);
                     }
                 }

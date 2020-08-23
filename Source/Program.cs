@@ -1,6 +1,8 @@
 ﻿
 using System;
 using System.IO;
+using System.Linq;
+using System.Text;
 using CommandLine;
 using Extensions;
 
@@ -89,11 +91,32 @@ namespace GameTextConverter
                         {
                             var sheetData = ExcelDataLoader.LoadSheetData(workspace, settings);
 
-                            DataWriter.WriteAllSheetData(workspace, sheetData, settings);
+                            var duplicates = sheetData.GroupBy(x => x.sheetName)
+                                .Where(x => 1 < x.Count())
+                                .Select(g => g.Key)
+                                .ToArray();
 
-                            var sheetNames = ExcelDataLoader.LoadSheetNames(workspace, settings);
+                            if (duplicates.IsEmpty())
+                            {
+                                DataWriter.WriteAllSheetData(workspace, sheetData, settings);
 
-                            DataWriter.WriteSheetIndex(workspace, sheetNames, settings);
+                                var sheetNames = ExcelDataLoader.LoadSheetNames(workspace, settings);
+
+                                DataWriter.WriteSheetIndex(workspace, sheetNames, settings);
+                            }
+                            else
+                            {
+                                var builder = new StringBuilder();
+
+                                builder.AppendLine();
+
+                                foreach (var item in duplicates)
+                                {
+                                    builder.AppendFormat("Duplicate sheet name exists. SheetName = {0}", item).AppendLine();
+                                }
+
+                                Exit(1, builder.ToString());
+                            }
                         }
                         break;
 
