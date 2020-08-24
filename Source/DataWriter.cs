@@ -27,7 +27,9 @@ namespace GameTextConverter
 
             if (!Directory.Exists(rootDirectory)) { throw new DirectoryNotFoundException(); }
 
-            var filePath = PathUtility.Combine(rootDirectory, Constants.SheetIndexFileName);
+            var fileName = Path.ChangeExtension(settings.EditExcelFileName, Constants.IndexFileExtension);
+
+            var filePath = PathUtility.Combine(rootDirectory, fileName);
             
             var indexData = new IndexData()
             {
