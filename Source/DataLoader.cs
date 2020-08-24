@@ -10,19 +10,29 @@ namespace GameTextConverter
     public sealed class DataLoader
     {
         //----- params -----
-        
+
         //----- field -----
 
         //----- property -----
 
         //----- method -----
         
-        /// <summary> エクセル情報読み込み </summary>
-        public static SheetData[] Load(string workspace, Settings settings)
+        public static IndexData LoadSheetIndex(string workspace, Settings settings)
         {
             var rootDirectory = PathUtility.Combine(workspace, Constants.ContentsFolderName);
 
-            if (!Directory.Exists(rootDirectory)) { throw new DirectoryNotFoundException(); }
+            if (!Directory.Exists(rootDirectory)) { return null; }
+            
+            var sheetIndexFilePath = PathUtility.Combine(rootDirectory, Constants.SheetIndexFileName);
+
+            return FileSystem.LoadFile<IndexData>(sheetIndexFilePath, settings.FileFormat);
+        }
+        
+        public static SheetData[] LoadAllSheetData(string workspace, Settings settings)
+        {
+            var rootDirectory = PathUtility.Combine(workspace, Constants.ContentsFolderName);
+
+            if (!Directory.Exists(rootDirectory)) { return null; }
 
             // シート情報読み込み.
 
@@ -35,8 +45,8 @@ namespace GameTextConverter
             var sheets = new List<SheetData>();
 
             if (sheetFiles.IsEmpty()){ return new SheetData[0]; }
-
-            ConsoleUtility.Progress("------ LoadSheetData ------");
+            
+            ConsoleUtility.Progress("------ Load SheetData ------");
 
             foreach (var sheetFile in sheetFiles)
             {

@@ -6,6 +6,9 @@ namespace GameTextConverter
 {
     public static class Constants
     {
+        /// <summary> シートインデックスファイル名 </summary>
+        public const string SheetIndexFileName = "sheet.index";
+
         /// <summary> データフォルダ名 </summary>
         public const string ContentsFolderName = "Contents";
 

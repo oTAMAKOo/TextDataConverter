@@ -14,14 +14,30 @@ namespace GameTextConverter
     public sealed class DataWriter
     {
         //----- params -----
-        
+
         //----- field -----
 
         //----- property -----
 
         //----- method -----
 
-        public static void Write(string workspace, SheetData[] sheetData, Settings settings)
+        public static void WriteSheetIndex(string workspace, string[] sheetNames, Settings settings)
+        {
+            var rootDirectory = PathUtility.Combine(workspace, Constants.ContentsFolderName);
+
+            if (!Directory.Exists(rootDirectory)) { throw new DirectoryNotFoundException(); }
+
+            var filePath = PathUtility.Combine(rootDirectory, Constants.SheetIndexFileName);
+            
+            var indexData = new IndexData()
+            {
+                sheetNames = sheetNames
+            };
+
+            FileSystem.WriteFile(filePath, indexData, settings.FileFormat);
+        }
+
+        public static void WriteAllSheetData(string workspace, SheetData[] sheetData, Settings settings)
         {
             CreateCleanDirectory(workspace);
             
