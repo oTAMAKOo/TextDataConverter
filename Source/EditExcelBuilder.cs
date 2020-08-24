@@ -21,7 +21,7 @@ namespace GameTextConverter
 
         //----- method -----
 
-        public static void Build(string workspace, SheetData[] sheetData, Settings settings)
+        public static void Build(string workspace, IndexData indexData, SheetData[] sheetData, Settings settings)
         {
             var originExcelPath = Path.GetFullPath(settings.ExcelPath);
 
@@ -41,6 +41,8 @@ namespace GameTextConverter
             var editXlsxFile = originXlsxFile.CopyTo(editExcelPath, true);
 
             //------ レコード情報を書き込み ------
+
+            if (sheetData == null){ return; }
 
             using (var excel = new ExcelPackage(editXlsxFile))
             {
@@ -77,6 +79,20 @@ namespace GameTextConverter
                     newWorksheet.View.TabSelected = false;
                 }
 
+                // シート順番入れ替え.
+
+                if (worksheets.Any() && indexData != null)
+                {
+                    for (var i = indexData.sheetNames.Length - 1 ; 0 <= i ; i--)
+                    {
+                        var sheetName = indexData.sheetNames[i];
+
+                        if(worksheets.All(x => x.Name != sheetName)){ continue; }
+
+                        worksheets.MoveToStart(sheetName);
+                    }
+                }
+
                 // 先頭のシートをアクティブ化.
 
                 var firstWorksheet = worksheets.FirstOrDefault();
@@ -84,41 +100,6 @@ namespace GameTextConverter
                 if (firstWorksheet != null)
                 {
                     firstWorksheet.View.TabSelected = true;
-                }
-
-                // シート順番入れ替え.
-
-                var loop = true;
-
-                while (loop)
-                {
-                    loop = false;
-                    
-                    foreach (var data in sheetData)
-                    {
-                        if (worksheets.Count <= data.index) { continue; }
-
-                        var worksheet = worksheets.FirstOrDefault(x => x.Name == data.displayName);
-
-                        if (worksheet != null && worksheet.Index != data.index)
-                        {
-                            loop = true;
-                            break;
-                        }
-                    }
-
-                    foreach (var worksheet in worksheets)
-                    {
-                        var sheet = sheetData.FirstOrDefault(x => x.index == worksheet.Index + 1);
-
-                        if (sheet == null) { continue; }
-
-                        if (sheet.displayName == worksheet.Name && sheet.index == worksheet.Index) { continue; }
-
-                        var moveSheet = worksheets.FirstOrDefault(x => x.Name == sheet.displayName);
-
-                        worksheets.MoveAfter(moveSheet.Index, worksheet.Index);
-                    }
                 }
 
                 // レコード情報設定.

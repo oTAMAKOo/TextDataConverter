@@ -11,8 +11,28 @@ namespace GameTextConverter
 {
     public static class ExcelDataLoader
     {
+        /// <summary> シート名一覧読み込み(.xlsx) </summary>
+        public static string[] LoadSheetNames(string workspace, Settings settings)
+        {
+            var excelFilePath = PathUtility.Combine(workspace, settings.EditExcelFileName);
+
+            if (!File.Exists(excelFilePath)) { return null; }
+            
+            var sheetNames = new List<string>();
+
+            using (var excel = new ExcelPackage(new FileInfo(excelFilePath)))
+            {
+                foreach (var worksheet in excel.Workbook.Worksheets)
+                {
+                    sheetNames.Add(worksheet.Name);
+                }
+            }
+
+            return sheetNames.ToArray();
+        }
+
         /// <summary> レコード情報読み込み(.xlsx) </summary>
-        public static SheetData[] LoadExcelData(string workspace, Settings settings)
+        public static SheetData[] LoadSheetData(string workspace, Settings settings)
         {
             var excelFilePath = PathUtility.Combine(workspace, settings.EditExcelFileName);
 
@@ -45,7 +65,6 @@ namespace GameTextConverter
                     var sheetData = new SheetData()
                     {
                         guid = sheetGuid,
-                        index = worksheet.Index,
                         displayName = worksheet.Name,
                         sheetName = sheetEnumName,
                     };
