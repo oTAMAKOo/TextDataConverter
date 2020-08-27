@@ -64,8 +64,6 @@ namespace GameTextConverter
             if (!string.IsNullOrEmpty(color.Theme))
             {
                 colorCode = null;
-
-                ConsoleUtility.Warning("Theme color not support saved default color.\n[{0}] {1}", cell.Address, cell.Text);
             }
 
             return colorCode;
