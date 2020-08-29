@@ -190,6 +190,8 @@ namespace GameTextConverter
                     
                     for (var c = 1; c < dimension.End.Column; c++)
                     {
+                        worksheet.Column(c).AutoFit();
+
                         var columnWidth = worksheet.Column(c).Width;
 
                         for (var r = 1; r <= maxRow; r++)
