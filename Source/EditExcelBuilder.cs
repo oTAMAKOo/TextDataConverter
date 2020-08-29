@@ -57,8 +57,6 @@ namespace GameTextConverter
                     throw new Exception(string.Format("Template worksheet {0} not found.", settings.TemplateSheetName));
                 }
 
-                templateSheet.Cells.AutoFitColumns(20f, 100f);
-
                 // シート作成.
 
                 foreach (var data in sheetData)
@@ -77,6 +75,8 @@ namespace GameTextConverter
                     newWorksheet.Protection.IsProtected = false;
                     // タブ選択状態解除.
                     newWorksheet.View.TabSelected = false;
+                    // セルサイズ調整.
+                    newWorksheet.Cells.AutoFitColumns();
                 }
 
                 // シート順番入れ替え.
@@ -186,6 +186,12 @@ namespace GameTextConverter
 
                     // セルサイズを調整.
 
+                    var ignoreWrapText = new int[]
+                    {
+                        Constants.GuidColumn,
+                        Constants.EnumNameColumn,
+                    };
+
                     var maxRow = Constants.RecordStartRow + records.Length + 1;
                     
                     for (var c = 1; c < dimension.End.Column; c++)
@@ -200,7 +206,7 @@ namespace GameTextConverter
 
                             if (string.IsNullOrEmpty(cell.Text)) { continue; }
 
-                            cell.Style.WrapText = true;
+                            cell.Style.WrapText = !ignoreWrapText.Contains(c);
                             cell.Style.ShrinkToFit = false;
 
                             var width = CalcTextWidth(graphics, cell);
