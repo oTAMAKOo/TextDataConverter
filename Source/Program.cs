@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using CommandLine;
+using OfficeOpenXml;
 using Extensions;
 
 namespace GameTextConverter
@@ -45,6 +46,9 @@ namespace GameTextConverter
             {
                 Exit(1, "Settings load failed.");
             }
+
+            // EPPlus License setup.
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
             // メイン処理.
 

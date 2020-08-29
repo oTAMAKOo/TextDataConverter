@@ -1,4 +1,7 @@
 ﻿
+using OfficeOpenXml.Drawing;
+using OfficeOpenXml.Style;
+
 namespace GameTextConverter
 {
     public sealed class IndexData
@@ -25,17 +28,28 @@ namespace GameTextConverter
         
         public string guid = null;
 
-        public ContentData[] contents = null;
+        public string[] texts = null;
+
+        public CellData[] cells = null;
     }
 
-    public sealed class ContentData
+    public sealed class CellData
     {
-        public string text = null;
+        public class Color
+        {
+            public string rgb = null;
+            public eThemeSchemeColor? theme = null;
+            public decimal? tint = null;
+        }
+
+        public string address = null;
 
         public string comment = null;
 
-        public string fontColor = null;
+        public Color fontColor = null;
 
-        public string backgroundColor = null;
+        public Color backgroundColor = null;
+
+        public ExcelFillStyle patternType = ExcelFillStyle.Solid;
     }
 }

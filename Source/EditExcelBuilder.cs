@@ -162,18 +162,25 @@ namespace GameTextConverter
                         // 説明.
                         worksheet.SetValue(r, Constants.DescriptionColumn, record.description);
 
-                        // テキスト・オプション情報.
-                        for (var c = 0; c < record.contents.Length; c++)
+                        // テキスト.
+                        for (var j = 0; j < record.texts.Length; j++)
                         {
-                            var content = record.contents[c];
+                            var text = record.texts[j];
 
-                            if (content == null) { continue; }
-                            
-                            worksheet.SetValue(r, Constants.TextStartColumn + c, content.text);
+                            if (string.IsNullOrEmpty(text)) { continue; }
 
-                            var cell = worksheet.Cells[r, Constants.TextStartColumn + c];
-                            
-                            CellOption.Set(cell, content.comment, content.fontColor, content.backgroundColor);
+                            worksheet.SetValue(r, Constants.TextStartColumn + j, text);
+                        }
+
+                        // セル情報.
+                        if (record.cells != null)
+                        {
+                            foreach (var cell in record.cells)
+                            {
+                                if (cell == null) { continue; }
+
+                                CellDataUtility.Set(worksheet, cell);
+                            }
                         }
                     }
 
