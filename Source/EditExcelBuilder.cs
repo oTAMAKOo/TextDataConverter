@@ -109,15 +109,22 @@ namespace GameTextConverter
 
                 // コールバック作成.
 
-                var ignoreWrapText = new int[]
+                var ignoreWrapColumn = new int[]
                 {
                     Constants.GuidColumn,
                     Constants.EnumNameColumn,
                 };
 
-                Func<int, bool> wrapTextCallback = c =>
+                Func<int, int, string, bool> wrapTextCallback = (r, c, text) =>
                 {
-                    return !ignoreWrapText.Contains(c);
+                    var result = true;
+
+                    // 除外対象に含まれていない.
+                    result &= !ignoreWrapColumn.Contains(c);
+                    // 改行が含まれている.
+                    result &= text.FixLineEnd().Contains("\n");
+
+                    return result;
                 };
 
                 // レコード情報設定.
@@ -216,7 +223,7 @@ namespace GameTextConverter
 
                     var celFitRange = worksheet.Cells[1, 1, maxRow, dimension.End.Column];
 
-                    ExcelUtility.FitColumnSize(worksheet, celFitRange, wrapTextCallback);
+                    ExcelUtility.FitColumnSize(worksheet, celFitRange, null, 150, wrapTextCallback);
 
                     // GUID行は幅固定.
                     worksheet.Column(Constants.GuidColumn).Width = 20d;

@@ -2,12 +2,17 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using OfficeOpenXml;
 
 namespace Extensions
 {
     public static class ExcelUtility
     {
+        private static Graphics graphics = null;
+
+        private static List<Font> fonts = new List<Font>();
+
         public static T ConvertValue<T>(object value)
         {
             if (value is T) { return (T)value; }
@@ -66,10 +71,18 @@ namespace Extensions
 
             return values;
         }
-        
-        public static void FitColumnSize(ExcelWorksheet worksheet, ExcelRange range, Func<int, bool> wrapTextCallback = null, Func<int, bool> shrinkToFitCallback = null)
+
+        public static void FitColumnSize(ExcelWorksheet worksheet, ExcelRange range, int? minSize = null, int? maxSize = null,
+                                         Func<int, int, string, bool> wrapTextCallback = null,
+                                         Func<int, int, string, bool> shrinkToFitCallback = null)
         {
-            var graphics = Graphics.FromImage(new Bitmap(1, 1));
+            if (graphics == null)
+            {
+                graphics = Graphics.FromImage(new Bitmap(1, 1));
+            }
+
+            var min = minSize.HasValue ? minSize.Value : double.MinValue;
+            var max = maxSize.HasValue ? maxSize.Value : double.MaxValue;
 
             for (var c = range.Start.Column; c < range.End.Column; c++)
             {
@@ -83,8 +96,8 @@ namespace Extensions
 
                     if (string.IsNullOrEmpty(cell.Text)) { continue; }
 
-                    cell.Style.WrapText = wrapTextCallback != null && wrapTextCallback.Invoke(c);
-                    cell.Style.ShrinkToFit = shrinkToFitCallback != null && shrinkToFitCallback.Invoke(c);
+                    cell.Style.WrapText = wrapTextCallback != null && wrapTextCallback.Invoke(r, c, cell.Text);
+                    cell.Style.ShrinkToFit = shrinkToFitCallback != null && shrinkToFitCallback.Invoke(r, c, cell.Text);
 
                     var width = CalcTextWidth(graphics, cell);
 
@@ -94,13 +107,19 @@ namespace Extensions
                     }
                 }
 
-                worksheet.Column(c).Width = columnWidth;
+                worksheet.Column(c).Width = Math.Min(Math.Max(columnWidth, min), max);
             }
         }
 
-        public static void FitRowSize(ExcelWorksheet worksheet, ExcelRange range)
+        public static void FitRowSize(ExcelWorksheet worksheet, ExcelRange range, int? minSize = null, int? maxSize = null)
         {
-            var graphics = Graphics.FromImage(new Bitmap(1, 1));
+            if (graphics == null)
+            {
+                graphics = Graphics.FromImage(new Bitmap(1, 1));
+            }
+
+            var min = minSize.HasValue ? minSize.Value : double.MinValue;
+            var max = maxSize.HasValue ? maxSize.Value : double.MaxValue;
 
             for (var r = range.Start.Row; r <= range.End.Row; r++)
             {
@@ -116,7 +135,7 @@ namespace Extensions
 
                     if (worksheet.Row(r).Height < height)
                     {
-                        worksheet.Row(r).Height = height;
+                        worksheet.Row(r).Height = Math.Min(Math.Max(height, min), max);
                     }
                 }
             }
@@ -128,7 +147,14 @@ namespace Extensions
 
             var font = cell.Style.Font;
 
-            var drawingFont = new Font(font.Name, font.Size);
+            var drawingFont = fonts.FirstOrDefault(x => x.Name == font.Name && x.Size == font.Size);
+
+            if (drawingFont == null)
+            {
+                drawingFont = new Font(font.Name, font.Size);
+
+                fonts.Add(drawingFont);
+            }
 
             var size = graphics.MeasureString(cell.Text, drawingFont);
 
@@ -141,9 +167,16 @@ namespace Extensions
 
             var font = cell.Style.Font;
 
-            var pixelWidth = Convert.ToInt32(width * 7.5);
+            var drawingFont = fonts.FirstOrDefault(x => x.Name == font.Name && x.Size == font.Size);
 
-            var drawingFont = new Font(font.Name, font.Size);
+            if (drawingFont == null)
+            {
+                drawingFont = new Font(font.Name, font.Size);
+
+                fonts.Add(drawingFont);
+            }
+
+            var pixelWidth = Convert.ToInt32(width * 7.5);
 
             var size = graphics.MeasureString(cell.Text, drawingFont, pixelWidth);
 

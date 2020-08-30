@@ -110,6 +110,9 @@ namespace Extensions
 
             if (IsEmptyColor(color)) { return null; }
 
+            // 通常色の場合は無視.
+            if (color.theme == eThemeSchemeColor.Text1 && color.tint == 0) { return null; }
+
             return color;
         }
 
@@ -127,8 +130,6 @@ namespace Extensions
             }
 
             if (IsEmptyColor(color)) { return null; }
-
-            if (color.theme == eThemeSchemeColor.Text1 && color.tint == 0) { return null; }
 
             return color;
         }
