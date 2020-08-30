@@ -84,15 +84,15 @@
     <Compile Include="Library\DictionaryExtensions.cs" />
     <Compile Include="Library\DirectoryUtility.cs" />
     <Compile Include="Library\EnumerableExtensions.cs" />
+    <Compile Include="Library\ExcelCell.cs" />
     <Compile Include="Source\ConsoleUtility.cs" />
     <Compile Include="Source\ExcelDataLoader.cs" />
-    <Compile Include="Source\FileSystem.cs" />
+    <Compile Include="Library\FileSystem.cs" />
     <Compile Include="Library\FileUtility.cs" />
     <Compile Include="Library\NaturalComparer.cs" />
     <Compile Include="Library\PathUtility.cs" />
     <Compile Include="Library\StringExtensions.cs" />
     <Compile Include="Source\Data.cs" />
-    <Compile Include="Source\CellDataUtility.cs" />
     <Compile Include="Source\Constants.cs" />
     <Compile Include="Source\EditExcelBuilder.cs" />
     <Compile Include="Library\ExcelUtility.cs" />

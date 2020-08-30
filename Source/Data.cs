@@ -1,6 +1,5 @@
 ﻿
-using OfficeOpenXml.Drawing;
-using OfficeOpenXml.Style;
+using Extensions;
 
 namespace GameTextConverter
 {
@@ -30,26 +29,11 @@ namespace GameTextConverter
 
         public string[] texts = null;
 
-        public CellData[] cells = null;
+        public ExcelCell[] cells = null;
     }
 
-    public sealed class CellData
+    public sealed class ExcelCell : Extensions.ExcelCell
     {
-        public class Color
-        {
-            public string rgb = null;
-            public eThemeSchemeColor? theme = null;
-            public decimal? tint = null;
-        }
-
         public string address = null;
-
-        public string comment = null;
-
-        public Color fontColor = null;
-
-        public Color backgroundColor = null;
-
-        public ExcelFillStyle patternType = ExcelFillStyle.Solid;
     }
 }

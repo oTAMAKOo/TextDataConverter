@@ -4,7 +4,7 @@ using System.Text;
 using Newtonsoft.Json;
 using YamlDotNet.Serialization;
 
-namespace GameTextConverter
+namespace Extensions
 {
     public static class FileSystem
     {

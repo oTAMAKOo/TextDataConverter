@@ -137,13 +137,15 @@ namespace GameTextConverter
 
                         // セル情報取得.
 
-                        var cells = new List<CellData>();
+                        var cells = new List<ExcelCell>();
 
                         for (var c = Constants.TextStartColumn; c < textEndColumn; c++)
                         {
-                            var cellData = CellDataUtility.Get(worksheet, c, r);
+                            var cellData = ExcelCellUtility.Get<ExcelCell>(worksheet, r, c);
 
                             if (cellData == null){ continue; }
+
+                            cellData.address = string.Format("{0},{1}", r, c);
 
                             cells.Add(cellData);
                         }
