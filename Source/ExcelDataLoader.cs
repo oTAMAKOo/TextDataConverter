@@ -122,28 +122,35 @@ namespace GameTextConverter
                             textEndColumn++;
                         }
 
-                        // 実テキスト取得.
+                        // テキスト取得.
 
-                        var contents = new List<ContentData>();
+                        var texts = new List<string>();
 
                         for (var c = Constants.TextStartColumn; c < textEndColumn; c++)
                         {
                             var text = ExcelUtility.ConvertValue<string>(rowValues, c - 1);
-
-                            var option = CellOption.Get(worksheet.Cells[r, c]);
-
-                            var data = new ContentData()
-                            {
-                                text = text,
-                                comment = option != null ? option.Item1 : null,
-                                fontColor = option != null ? option.Item2 : null,
-                                backgroundColor = option != null ? option.Item3 : null,
-                            };
-
-                            contents.Add(data);
+                            
+                            texts.Add(text);
                         }
 
-                        record.contents = contents.ToArray();
+                        record.texts = texts.ToArray();
+
+                        // セル情報取得.
+
+                        var cells = new List<ExcelCell>();
+
+                        for (var c = Constants.TextStartColumn; c < textEndColumn; c++)
+                        {
+                            var cellData = ExcelCellUtility.Get<ExcelCell>(worksheet, r, c);
+
+                            if (cellData == null){ continue; }
+
+                            cellData.address = string.Format("{0},{1}", r, c);
+
+                            cells.Add(cellData);
+                        }
+
+                        record.cells = cells.Any() ? cells.ToArray() : null;
 
                         records.Add(record);
                     }

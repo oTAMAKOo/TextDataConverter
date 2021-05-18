@@ -57,8 +57,6 @@ namespace GameTextConverter
                     throw new Exception(string.Format("Template worksheet {0} not found.", settings.TemplateSheetName));
                 }
 
-                templateSheet.Cells.AutoFitColumns(20f, 100f);
-
                 // シート作成.
 
                 foreach (var data in sheetData)
@@ -77,6 +75,13 @@ namespace GameTextConverter
                     newWorksheet.Protection.IsProtected = false;
                     // タブ選択状態解除.
                     newWorksheet.View.TabSelected = false;
+                    // セルサイズ調整.
+                    newWorksheet.Cells.AutoFitColumns();
+
+                    // エラー無視.
+                    var excelIgnoredError = newWorksheet.IgnoredErrors.Add(newWorksheet.Dimension);
+
+                    excelIgnoredError.NumberStoredAsText = true;
                 }
 
                 // シート順番入れ替え.
@@ -102,9 +107,27 @@ namespace GameTextConverter
                     firstWorksheet.View.TabSelected = true;
                 }
 
-                // レコード情報設定.
+                // コールバック作成.
 
-                var graphics = Graphics.FromImage(new Bitmap(1, 1));
+                var ignoreWrapColumn = new int[]
+                {
+                    Constants.GuidColumn,
+                    Constants.EnumNameColumn,
+                };
+
+                Func<int, int, string, bool> wrapTextCallback = (r, c, text) =>
+                {
+                    var result = true;
+
+                    // 除外対象に含まれていない.
+                    result &= !ignoreWrapColumn.Contains(c);
+                    // 改行が含まれている.
+                    result &= text.FixLineEnd().Contains("\n");
+
+                    return result;
+                };
+
+                // レコード情報設定.
 
                 foreach (var data in sheetData)
                 {
@@ -120,7 +143,7 @@ namespace GameTextConverter
 
                     var records = data.records;
 
-                    if (records == null){ continue; }
+                    if (records == null) { continue; }
 
                     worksheet.SetValue(Constants.SheetNameAddress.Y, Constants.SheetNameAddress.X, data.sheetName);
 
@@ -162,73 +185,52 @@ namespace GameTextConverter
                         // 説明.
                         worksheet.SetValue(r, Constants.DescriptionColumn, record.description);
 
-                        // テキスト・オプション情報.
-                        for (var c = 0; c < record.contents.Length; c++)
+                        // テキスト.
+                        for (var j = 0; j < record.texts.Length; j++)
                         {
-                            var content = record.contents[c];
+                            var text = record.texts[j];
 
-                            if (content == null) { continue; }
-                            
-                            worksheet.SetValue(r, Constants.TextStartColumn + c, content.text);
+                            if (string.IsNullOrEmpty(text)) { continue; }
 
-                            var cell = worksheet.Cells[r, Constants.TextStartColumn + c];
-                            
-                            CellOption.Set(cell, content.comment, content.fontColor, content.backgroundColor);
+                            worksheet.SetValue(r, Constants.TextStartColumn + j, text);
+                        }
+                        
+                        // セル情報.
+                        if (record.cells != null)
+                        {
+                            foreach (var cellData in record.cells)
+                            {
+                                if (cellData == null) { continue; }
+
+                                var address = cellData.address.Split(',');
+
+                                var rowStr = address.ElementAtOrDefault(0);
+                                var columnStr = address.ElementAtOrDefault(1);
+
+                                if (string.IsNullOrEmpty(rowStr) || string.IsNullOrEmpty(columnStr)) { continue; }
+
+                                var row = Convert.ToInt32(rowStr);
+                                var column = Convert.ToInt32(columnStr);
+
+                                ExcelCellUtility.Set<ExcelCell>(worksheet, row, column, cellData);
+                            }
                         }
                     }
 
                     // セルサイズを調整.
 
                     var maxRow = Constants.RecordStartRow + records.Length + 1;
-                    
-                    for (var c = 1; c < dimension.End.Column; c++)
-                    {
-                        var columnWidth = worksheet.Column(c).Width;
 
-                        for (var r = 1; r <= maxRow; r++)
-                        {
-                            var cell = worksheet.Cells[r, c];
+                    var celFitRange = worksheet.Cells[1, 1, maxRow, dimension.End.Column];
 
-                            if (string.IsNullOrEmpty(cell.Text)) { continue; }
-
-                            cell.Style.WrapText = true;
-                            cell.Style.ShrinkToFit = false;
-
-                            var width = CalcTextWidth(graphics, cell);
-
-                            if (columnWidth < width)
-                            {
-                                columnWidth = width;
-                            }
-                        }
-
-                        worksheet.Column(c).Width = columnWidth;
-                    }
+                    ExcelUtility.FitColumnSize(worksheet, celFitRange, null, 150, wrapTextCallback);
 
                     // GUID行は幅固定.
                     worksheet.Column(Constants.GuidColumn).Width = 20d;
 
-                    // 高さ.
-                    for (var r = 1; r <= maxRow; r++)
-                    {
-                        for (var c = 1; c <= dimension.End.Column; c++)
-                        {
-                            var cell = worksheet.Cells[r, c];
+                    ExcelUtility.FitRowSize(worksheet, celFitRange);
 
-                            if (string.IsNullOrEmpty(cell.Text)) { continue; }
-
-                            var columnWidth = (int)worksheet.Column(c).Width;
-
-                            var height = CalcTextHeight(graphics, cell, columnWidth);
-
-                            if (worksheet.Row(r).Height < height)
-                            {
-                                worksheet.Row(r).Height = height;
-                            }
-                        }
-                    }
-
-                    ConsoleUtility.Task("- {0}", data.displayName);
+                    ConsoleUtility.Task("- {0}", data.displayName);                    
                 }
 
                 // 保存.
@@ -249,34 +251,6 @@ namespace GameTextConverter
             worksheet.SetValue(row, column, guid);
 
             worksheet.Cells[row, column].Style.Font.Size = 5;
-        }
-
-        private static double CalcTextWidth(Graphics graphics, ExcelRange cell)
-        {
-            if (string.IsNullOrEmpty(cell.Text)) { return 0.0; }
-
-            var font = cell.Style.Font;
-
-            var drawingFont = new Font(font.Name, font.Size);
-
-            var size = graphics.MeasureString(cell.Text, drawingFont);
-            
-            return Convert.ToDouble(size.Width) / 5.7;
-        }
-
-        private static double CalcTextHeight(Graphics graphics, ExcelRange cell, int width)
-        {
-            if (string.IsNullOrEmpty(cell.Text)) { return 0.0; }
-
-            var font = cell.Style.Font;
-
-            var pixelWidth = Convert.ToInt32(width * 7.5);
-
-            var drawingFont = new Font(font.Name, font.Size);
-
-            var size = graphics.MeasureString(cell.Text, drawingFont, pixelWidth);
-            
-            return Math.Min(Convert.ToDouble(size.Height) * 72 / 96 * 1.2, 409) + 2;
         }
     }
 }

@@ -22,10 +22,12 @@ namespace GameTextConverter
             var rootDirectory = PathUtility.Combine(workspace, Constants.ContentsFolderName);
 
             if (!Directory.Exists(rootDirectory)) { return null; }
-            
-            var sheetIndexFilePath = PathUtility.Combine(rootDirectory, Constants.SheetIndexFileName);
 
-            return FileSystem.LoadFile<IndexData>(sheetIndexFilePath, settings.FileFormat);
+            var fileName = Path.ChangeExtension(settings.EditExcelFileName, Constants.IndexFileExtension);
+
+            var indexFilePath = PathUtility.Combine(rootDirectory, fileName);
+
+            return FileSystem.LoadFile<IndexData>(indexFilePath, settings.FileFormat);
         }
         
         public static SheetData[] LoadAllSheetData(string workspace, Settings settings)

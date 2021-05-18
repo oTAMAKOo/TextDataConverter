@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using CommandLine;
+using OfficeOpenXml;
 using Extensions;
 
 namespace GameTextConverter
@@ -46,6 +47,9 @@ namespace GameTextConverter
                 Exit(1, "Settings load failed.");
             }
 
+            // EPPlus License setup.
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
             // メイン処理.
 
             var workspace = options.Value.Workspace;
@@ -75,49 +79,11 @@ namespace GameTextConverter
                 switch (mode)
                 {
                     case "import":
-                        {
-                            if (!IsEditExcelFileLocked(workspace, settings))
-                            {
-                                var indexData = DataLoader.LoadSheetIndex(workspace, settings);
-
-                                var sheetData = DataLoader.LoadAllSheetData(workspace, settings);
-
-                                EditExcelBuilder.Build(workspace, indexData, sheetData, settings);
-                            }
-                        }
+                        Import(workspace, settings);
                         break;
 
                     case "export":
-                        {
-                            var sheetData = ExcelDataLoader.LoadSheetData(workspace, settings);
-
-                            var duplicates = sheetData.GroupBy(x => x.sheetName)
-                                .Where(x => 1 < x.Count())
-                                .Select(g => g.Key)
-                                .ToArray();
-
-                            if (duplicates.IsEmpty())
-                            {
-                                DataWriter.WriteAllSheetData(workspace, sheetData, settings);
-
-                                var sheetNames = ExcelDataLoader.LoadSheetNames(workspace, settings);
-
-                                DataWriter.WriteSheetIndex(workspace, sheetNames, settings);
-                            }
-                            else
-                            {
-                                var builder = new StringBuilder();
-
-                                builder.AppendLine();
-
-                                foreach (var item in duplicates)
-                                {
-                                    builder.AppendFormat("Duplicate sheet name exists. SheetName = {0}", item).AppendLine();
-                                }
-
-                                Exit(1, builder.ToString());
-                            }
-                        }
+                        Export(workspace, settings);
                         break;
 
                     default:
@@ -134,6 +100,49 @@ namespace GameTextConverter
             // 終了.
 
             Exit(0);
+        }
+
+        private static void Import(string workspace, Settings settings)
+        {
+            if (IsEditExcelFileLocked(workspace, settings)){ return; }
+            
+            var indexData = DataLoader.LoadSheetIndex(workspace, settings);
+
+            var sheetData = DataLoader.LoadAllSheetData(workspace, settings);
+
+            EditExcelBuilder.Build(workspace, indexData, sheetData, settings);
+        }
+
+        private static void Export(string workspace, Settings settings)
+        {
+            var sheetData = ExcelDataLoader.LoadSheetData(workspace, settings);
+
+            var duplicates = sheetData.GroupBy(x => x.sheetName)
+                .Where(x => 1 < x.Count())
+                .Select(g => g.Key)
+                .ToArray();
+
+            if (duplicates.Any())
+            {
+                var builder = new StringBuilder();
+
+                builder.AppendLine();
+
+                foreach (var item in duplicates)
+                {
+                    builder.AppendFormat("Duplicate sheet name exists. SheetName = {0}", item).AppendLine();
+                }
+
+                Exit(1, builder.ToString());
+
+                return;
+            }
+
+            DataWriter.WriteAllSheetData(workspace, sheetData, settings);
+
+            var sheetNames = ExcelDataLoader.LoadSheetNames(workspace, settings);
+
+            DataWriter.WriteSheetIndex(workspace, sheetNames, settings);
         }
 
         private static bool IsEditExcelFileLocked(string workspace, Settings settings)

@@ -1,4 +1,6 @@
 ﻿
+using Extensions;
+
 namespace GameTextConverter
 {
     public sealed class IndexData
@@ -25,17 +27,13 @@ namespace GameTextConverter
         
         public string guid = null;
 
-        public ContentData[] contents = null;
+        public string[] texts = null;
+
+        public ExcelCell[] cells = null;
     }
 
-    public sealed class ContentData
+    public sealed class ExcelCell : Extensions.ExcelCell
     {
-        public string text = null;
-
-        public string comment = null;
-
-        public string fontColor = null;
-
-        public string backgroundColor = null;
+        public string address = null;
     }
 }
