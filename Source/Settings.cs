@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using Extensions;
 
-namespace GameTextConverter
+namespace TextDataConverter
 {
     public class Settings
     {

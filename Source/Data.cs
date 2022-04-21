@@ -1,7 +1,5 @@
 ﻿
-using Extensions;
-
-namespace GameTextConverter
+namespace TextDataConverter
 {
     public sealed class IndexData
     {

@@ -1,8 +1,7 @@
 ﻿
-using System;
 using System.Drawing;
 
-namespace GameTextConverter
+namespace TextDataConverter
 {
     public static class Constants
     {

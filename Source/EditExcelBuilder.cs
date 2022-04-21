@@ -8,7 +8,7 @@ using Extensions;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 
-namespace GameTextConverter
+namespace TextDataConverter
 {
     public sealed class EditExcelBuilder
     {

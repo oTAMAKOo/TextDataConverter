@@ -7,7 +7,7 @@ using CommandLine;
 using OfficeOpenXml;
 using Extensions;
 
-namespace GameTextConverter
+namespace TextDataConverter
 {
     class Program
     {

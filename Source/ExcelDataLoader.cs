@@ -7,7 +7,7 @@ using System.Linq;
 using Extensions;
 using OfficeOpenXml;
 
-namespace GameTextConverter
+namespace TextDataConverter
 {
     public static class ExcelDataLoader
     {

@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
+using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using Extensions;
-using Newtonsoft.Json;
-using OfficeOpenXml;
-using YamlDotNet.Serialization;
 
-namespace GameTextConverter
+namespace TextDataConverter
 {
     public sealed class DataWriter
     {

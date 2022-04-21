@@ -1,7 +1,7 @@
 ﻿
 using System;
 
-namespace GameTextConverter
+namespace TextDataConverter
 {
     public static class ConsoleUtility
     {

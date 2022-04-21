@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{FB618758-B252-40BD-9EB4-F6FC180374C9}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>GameTextConverter</RootNamespace>
-    <AssemblyName>GameTextConverter</AssemblyName>
+    <RootNamespace>TextDataConverter</RootNamespace>
+    <AssemblyName>TextDataConverter</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.136
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31911.196
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTextConverter", "GameTextConverter.csproj", "{FB618758-B252-40BD-9EB4-F6FC180374C9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextDataConverter", "TextDataConverter.csproj", "{FB618758-B252-40BD-9EB4-F6FC180374C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
