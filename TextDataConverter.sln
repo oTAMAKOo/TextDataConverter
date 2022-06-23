@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31911.196
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextDataConverter", "TextDataConverter.csproj", "{FB618758-B252-40BD-9EB4-F6FC180374C9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextDataConverter", "TextDataConverter.csproj", "{CA35848D-8869-48F1-BED2-B8EA82CEF4E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FB618758-B252-40BD-9EB4-F6FC180374C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FB618758-B252-40BD-9EB4-F6FC180374C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FB618758-B252-40BD-9EB4-F6FC180374C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FB618758-B252-40BD-9EB4-F6FC180374C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA35848D-8869-48F1-BED2-B8EA82CEF4E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA35848D-8869-48F1-BED2-B8EA82CEF4E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA35848D-8869-48F1-BED2-B8EA82CEF4E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA35848D-8869-48F1-BED2-B8EA82CEF4E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {F19BC2FF-C0A7-4AA8-B34A-92A7E6EEC39D}
+		SolutionGuid = {A55F1021-C9FC-44EB-B4A3-0F5C8664CA55}
 	EndGlobalSection
 EndGlobal
