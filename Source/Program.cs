@@ -89,22 +89,25 @@ namespace TextDataConverter
                     default:
                         throw new NotSupportedException("Unknown mode selection.");
                 }
+
+                ConsoleUtility.Info("Complete!");
             }
             catch (Exception e)
             {
                 Exit(1, e.ToString());
             }
-
-            ConsoleUtility.Info("Complete!");
-
-            // 終了.
-
+            
             Exit(0);
         }
 
         private static void Import(string workspace, Settings settings)
         {
-            if (IsEditExcelFileLocked(workspace, settings)){ return; }
+            var editExcelPath = PathUtility.Combine(workspace, settings.EditExcelFileName);
+
+            if (ExcelUtility.IsLocked(editExcelPath))
+            {
+                throw new Exception($"Excel file locked.\nPath : {editExcelPath}");
+            }
             
             var indexData = DataLoader.LoadSheetIndex(workspace, settings);
 
@@ -143,29 +146,6 @@ namespace TextDataConverter
             var sheetNames = ExcelDataLoader.LoadSheetNames(workspace, settings);
 
             DataWriter.WriteSheetIndex(workspace, sheetNames, settings);
-        }
-
-        private static bool IsEditExcelFileLocked(string workspace, Settings settings)
-        {
-            var editExcelPath = PathUtility.Combine(workspace, settings.EditExcelFileName);
-
-            // ファイルが存在＋ロック時はエラー.
-            if (File.Exists(editExcelPath))
-            {
-                if (FileUtility.IsFileLocked(editExcelPath))
-                {
-                    Exit(1, string.Format("File locked. {0}", editExcelPath));
-                    return true;
-                }
-            }
-
-            return false;
-        }
-        
-        // レコードファイルのディレクトリ取得.
-        private static string GetRecordFileDirectory(string directory)
-        {
-            return PathUtility.Combine(directory, Constants.ContentsFolderName);
         }
 
         private static void Exit(int exitCode, string message = "")

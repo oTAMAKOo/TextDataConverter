@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using OfficeOpenXml;
 
@@ -139,6 +140,17 @@ namespace Extensions
                     }
                 }
             }
+        }
+
+        public static bool IsLocked(string excelPath)
+        {
+            // ファイルが存在＋ロック時はエラー.
+            if (File.Exists(excelPath))
+            {
+                if (FileUtility.IsFileLocked(excelPath)) { return true; }
+            }
+
+            return false;
         }
 
         private static double CalcTextWidth(Graphics graphics, ExcelRange cell)
