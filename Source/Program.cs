@@ -60,11 +60,13 @@ namespace TextDataConverter
 
             #if DEBUG
 
+            var currentDirectory = @"";
+
             workspace = @"";
 
-            Directory.SetCurrentDirectory(workspace);
-
             mode = "import";
+            
+            Directory.SetCurrentDirectory(currentDirectory);
 
             #endif
 
