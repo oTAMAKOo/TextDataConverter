@@ -75,8 +75,6 @@ namespace TextDataConverter
                     newWorksheet.Protection.IsProtected = false;
                     // タブ選択状態解除.
                     newWorksheet.View.TabSelected = false;
-                    // セルサイズ調整.
-                    newWorksheet.Cells.AutoFitColumns();
 
                     // エラー無視.
                     var excelIgnoredError = newWorksheet.IgnoredErrors.Add(newWorksheet.Dimension);
@@ -149,6 +147,17 @@ namespace TextDataConverter
 
                     SetGuid(worksheet, Constants.SheetGuidAddress.Y, Constants.SheetGuidAddress.X, data.guid);
 
+                    // カラム初期幅.
+
+                    var columnsWidth = new Dictionary<int, double>();
+
+                    for (var c = dimension.Start.Column; c <= dimension.End.Column; c++)
+                    {
+                        var width = worksheet.Columns[c].Width;
+
+                        columnsWidth[c] = width;
+                    }
+
                     // レコード投入用セルを用意.
 
                     for (var i = 0; i < records.Length; i++)
@@ -218,17 +227,24 @@ namespace TextDataConverter
                     }
 
                     // セルサイズを調整.
+                
+                    var celFitRange = worksheet.Cells[1, 1, dimension.End.Row, dimension.End.Column];
 
-                    var maxRow = Constants.RecordStartRow + records.Length + 1;
+                    celFitRange.AutoFitColumns();
 
-                    var celFitRange = worksheet.Cells[1, 1, maxRow, dimension.End.Column];
+                    for (var c = celFitRange.Start.Column; c <= celFitRange.End.Column; c++)
+                    {
+                        var baseWidth = columnsWidth.GetValueOrDefault(c);
+                        var currentWidth = worksheet.Column(c).Width;
 
-                    ExcelUtility.FitColumnSize(worksheet, celFitRange, null, 150, wrapTextCallback);
+                        if (currentWidth < baseWidth)
+                        {
+                            worksheet.Column(c).Width = baseWidth;
+                        }
+                    }
 
                     // GUID行は幅固定.
                     worksheet.Column(Constants.GuidColumn).Width = 20d;
-
-                    ExcelUtility.FitRowSize(worksheet, celFitRange);
 
                     ConsoleUtility.Task("- {0}", data.displayName);                    
                 }

@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using OfficeOpenXml;
 
@@ -10,9 +9,16 @@ namespace Extensions
 {
     public static class ExcelUtility
     {
-        private static Graphics graphics = null;
+        public static bool IsLocked(string excelPath)
+        {
+            // ファイルが存在＋ロック時はエラー.
+            if (File.Exists(excelPath))
+            {
+                if (FileUtility.IsFileLocked(excelPath)) { return true; }
+            }
 
-        private static List<Font> fonts = new List<Font>();
+            return false;
+        }
 
         public static T ConvertValue<T>(object value)
         {
@@ -71,128 +77,6 @@ namespace Extensions
             }
 
             return values;
-        }
-
-        public static void FitColumnSize(ExcelWorksheet worksheet, ExcelRange range, int? minSize = null, int? maxSize = null,
-                                         Func<int, int, string, bool> wrapTextCallback = null,
-                                         Func<int, int, string, bool> shrinkToFitCallback = null)
-        {
-            if (graphics == null)
-            {
-                graphics = Graphics.FromImage(new Bitmap(1, 1));
-            }
-
-            var min = minSize.HasValue ? minSize.Value : double.MinValue;
-            var max = maxSize.HasValue ? maxSize.Value : double.MaxValue;
-
-            for (var c = range.Start.Column; c < range.End.Column; c++)
-            {
-                worksheet.Column(c).AutoFit();
-
-                var columnWidth = worksheet.Column(c).Width;
-
-                for (var r = range.Start.Row; r <= range.End.Row; r++)
-                {
-                    var cell = worksheet.Cells[r, c];
-
-                    if (string.IsNullOrEmpty(cell.Text)) { continue; }
-
-                    cell.Style.WrapText = wrapTextCallback != null && wrapTextCallback.Invoke(r, c, cell.Text);
-                    cell.Style.ShrinkToFit = shrinkToFitCallback != null && shrinkToFitCallback.Invoke(r, c, cell.Text);
-
-                    var width = CalcTextWidth(graphics, cell);
-
-                    if (columnWidth < width)
-                    {
-                        columnWidth = width;
-                    }
-                }
-
-                worksheet.Column(c).Width = Math.Min(Math.Max(columnWidth, min), max);
-            }
-        }
-
-        public static void FitRowSize(ExcelWorksheet worksheet, ExcelRange range, int? minSize = null, int? maxSize = null)
-        {
-            if (graphics == null)
-            {
-                graphics = Graphics.FromImage(new Bitmap(1, 1));
-            }
-
-            var min = minSize.HasValue ? minSize.Value : double.MinValue;
-            var max = maxSize.HasValue ? maxSize.Value : double.MaxValue;
-
-            for (var r = range.Start.Row; r <= range.End.Row; r++)
-            {
-                for (var c = range.Start.Column; c <= range.End.Column; c++)
-                {
-                    var cell = worksheet.Cells[r, c];
-
-                    if (string.IsNullOrEmpty(cell.Text)) { continue; }
-
-                    var columnWidth = (int)worksheet.Column(c).Width;
-
-                    var height = CalcTextHeight(graphics, cell, columnWidth);
-
-                    if (worksheet.Row(r).Height < height)
-                    {
-                        worksheet.Row(r).Height = Math.Min(Math.Max(height, min), max);
-                    }
-                }
-            }
-        }
-
-        public static bool IsLocked(string excelPath)
-        {
-            // ファイルが存在＋ロック時はエラー.
-            if (File.Exists(excelPath))
-            {
-                if (FileUtility.IsFileLocked(excelPath)) { return true; }
-            }
-
-            return false;
-        }
-
-        private static double CalcTextWidth(Graphics graphics, ExcelRange cell)
-        {
-            if (string.IsNullOrEmpty(cell.Text)) { return 0.0; }
-
-            var font = cell.Style.Font;
-
-            var drawingFont = fonts.FirstOrDefault(x => x.Name == font.Name && x.Size == font.Size);
-
-            if (drawingFont == null)
-            {
-                drawingFont = new Font(font.Name, font.Size);
-
-                fonts.Add(drawingFont);
-            }
-
-            var size = graphics.MeasureString(cell.Text, drawingFont);
-
-            return Convert.ToDouble(size.Width) / 5.7;
-        }
-
-        private static double CalcTextHeight(Graphics graphics, ExcelRange cell, int width)
-        {
-            if (string.IsNullOrEmpty(cell.Text)) { return 0.0; }
-
-            var font = cell.Style.Font;
-
-            var drawingFont = fonts.FirstOrDefault(x => x.Name == font.Name && x.Size == font.Size);
-
-            if (drawingFont == null)
-            {
-                drawingFont = new Font(font.Name, font.Size);
-
-                fonts.Add(drawingFont);
-            }
-
-            var pixelWidth = Convert.ToInt32(width * 7.5);
-
-            var size = graphics.MeasureString(cell.Text, drawingFont, pixelWidth);
-
-            return Math.Min(Convert.ToDouble(size.Height) * 72 / 96 * 1.2, 409) + 2;
         }
     }
 }

@@ -10,6 +10,8 @@ namespace Extensions
 {
     public static partial class StringExtensions
     {
+        private static readonly HashAlgorithm hashAlgorithm = SHA256.Create();
+
         /// <summary> SringBuilderを使って複数の文字列を連結. </summary>
         public static string Combine(this string value, string[] targets)
         {
@@ -86,20 +88,7 @@ namespace Extensions
         // SHA256ハッシュ生成.
         private static string CalcSHA256(string value, Encoding enc)
         {
-            var byteValues = enc.GetBytes(value);
-
-            var crypto256 = new SHA256CryptoServiceProvider();
-
-            var hash256Value = crypto256.ComputeHash(byteValues);
-            
-            var hashedText = new StringBuilder();
-
-            for (var i = 0; i < hash256Value.Length; i++)
-            {
-                hashedText.AppendFormat("{0:x2}", hash256Value[i]);
-            }
-
-            return hashedText.ToString();
+            return string.Join("", hashAlgorithm.ComputeHash(enc.GetBytes(value)).Select(x => $"{x:x2}"));
         }
 
         /// <summary> 指定された文字列をCRC32でハッシュ化 </summary>
