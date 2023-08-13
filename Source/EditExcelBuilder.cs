@@ -201,6 +201,10 @@ namespace TextDataConverter
 
                             if (string.IsNullOrEmpty(text)) { continue; }
 
+                            // 改行を含む場合は折り畳む.
+                            worksheet.Cells[r, Constants.TextStartColumn + j].Style.WrapText = text.FixLineEnd().Contains("\n");
+
+                            // 設定.
                             worksheet.SetValue(r, Constants.TextStartColumn + j, text);
                         }
                         
