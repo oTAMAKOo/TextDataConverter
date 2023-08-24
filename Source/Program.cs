@@ -36,25 +36,25 @@ namespace TextDataConverter
             if (options == null)
             {
                 Exit(1, "Arguments parse failed.");
+
+                return;
             }
+
+            var workspace = options.Value.Workspace;
+
+            var mode = options.Value.Mode;
 
             // 設定ファイル.
 
             var settings = new Settings();
 
-            if (!settings.Load())
+            if (!settings.Load(workspace))
             {
                 Exit(1, "Settings load failed.");
             }
 
             // EPPlus License setup.
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-            // メイン処理.
-
-            var workspace = options.Value.Workspace;
-
-            var mode = options.Value.Mode;
 
             /*=== 開発用 ========================================
 

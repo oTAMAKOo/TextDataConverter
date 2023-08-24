@@ -69,9 +69,9 @@ namespace TextDataConverter
 
         //----- method -----        
 
-        public bool Load()
+        public bool Load(string workspace)
         {
-            var iniFilePath = "./settings.ini";
+            var iniFilePath = Path.Combine(workspace, "settings.ini");
 
             if (!File.Exists(iniFilePath)) { return false; }
 

@@ -1,12 +1,6 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Linq;
 using Extensions;
 using OfficeOpenXml;
-using OfficeOpenXml.Style;
 
 namespace TextDataConverter
 {
@@ -23,7 +17,7 @@ namespace TextDataConverter
 
         public static void Build(string workspace, IndexData indexData, SheetData[] sheetData, Settings settings)
         {
-            var originExcelPath = Path.GetFullPath(settings.ExcelPath);
+            var originExcelPath = Path.GetRelativePath(workspace, settings.ExcelPath);
 
             var editExcelPath = PathUtility.Combine(workspace, settings.EditExcelFileName);
 
@@ -33,7 +27,7 @@ namespace TextDataConverter
 
             if (!File.Exists(originExcelPath))
             {
-                throw new FileNotFoundException(string.Format("{0} is not exists.", originExcelPath));
+                throw new FileNotFoundException($"{originExcelPath} is not exists.");
             }
 
             var originXlsxFile = new FileInfo(originExcelPath);
@@ -54,7 +48,7 @@ namespace TextDataConverter
 
                 if (templateSheet == null)
                 {
-                    throw new Exception(string.Format("Template worksheet {0} not found.", settings.TemplateSheetName));
+                    throw new Exception($"Template worksheet {settings.TemplateSheetName} not found.");
                 }
 
                 // シート作成.
@@ -65,7 +59,7 @@ namespace TextDataConverter
 
                     if (worksheets.Any(x => x.Name == data.displayName))
                     {
-                        throw new Exception(string.Format("Worksheet create failed. Worksheet {0} already exists", data.displayName));
+                        throw new Exception($"Worksheet create failed. Worksheet {data.displayName} already exists");
                     }
 
                     // テンプレートシートを複製.                    
