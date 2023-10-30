@@ -58,9 +58,13 @@ namespace TextDataConverter
 
                     // 既にシートデータがある場合は読み込み.
                     var existSheetData = LoadExistSheetData(workspace, sheetEnumName, settings);
+                    
+                    // データが出力されていない場合は新規Guidを割り当て.
+                    var sheetGuid = existSheetData == null ? Guid.NewGuid().ToString("N") : existSheetData.guid;
 
                     var sheetData = new SheetData()
                     {
+                        guid = sheetGuid,
                         displayName = worksheet.Name,
                         sheetName = sheetEnumName,
                     };
@@ -75,7 +79,7 @@ namespace TextDataConverter
 
                         if (string.IsNullOrEmpty(enumName)) { continue; }
 
-                        var identifier = string.Empty;
+                        var recordGuid = string.Empty;
 
                         // データが出力されていない場合は新規Guidを割り当て.
 
@@ -85,20 +89,20 @@ namespace TextDataConverter
 
                             if (existRecordData != null)
                             {
-                                identifier = existRecordData.identifier;
+                                recordGuid = existRecordData.guid;
                             }
                         }
 
-                        if (string.IsNullOrEmpty(identifier))
+                        if (string.IsNullOrEmpty(recordGuid))
                         {
-                            identifier = $"{sheetEnumName}-{enumName}";
+                            recordGuid = Guid.NewGuid().ToString("N");
                         }
 
                         var description = ExcelUtility.ConvertValue<string>(rowValues, Constants.DescriptionColumn - 1);
 
                         var record = new RecordData()
                         {
-                            identifier = identifier,
+                            guid = recordGuid,
                             enumName = enumName,
                             description = description,
                         };

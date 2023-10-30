@@ -20,17 +20,23 @@ namespace TextDataConverter
         /// <summary> Excel拡張子 </summary>
         public const string ExcelExtension = ".xlsx";
 
+        /// <summary> シートGuid定義アドレス </summary>
+        public static readonly Point SheetGuidAddress = new Point(1, 1);
+
         /// <summary> シートEnum名定義アドレス </summary>
-        public static readonly Point SheetNameAddress = new Point(1, 1);
+        public static readonly Point SheetNameAddress = new Point(2, 1);
+        
+        /// <summary> Guid列 </summary>
+        public const int GuidColumn = 1;
 
         /// <summary> 区分列 </summary>
-        public const int DescriptionColumn = 1;
+        public const int DescriptionColumn = 2;
 
         /// <summary> Enum名列 </summary>0
-        public const int EnumNameColumn = 2;
+        public const int EnumNameColumn = 3;
 
         /// <summary> テキスト開始列 </summary>
-        public const int TextStartColumn = 3;
+        public const int TextStartColumn = 4;
 
         /// <summary> テキストタイプ開始行 </summary>
         public const int TextTypeStartRow = 2;
