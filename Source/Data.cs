@@ -11,19 +11,17 @@ namespace TextDataConverter
         public string sheetName = null;
 
         public string displayName = null;
-
-        public string guid = null;
         
         public RecordData[] records = null;
     }
 
     public sealed class RecordData
     {
+        public string identifier = null;
+
         public string enumName = null;
 
         public string description = null;
-        
-        public string guid = null;
 
         public string[] texts = null;
 
