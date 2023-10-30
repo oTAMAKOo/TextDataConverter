@@ -99,26 +99,6 @@ namespace TextDataConverter
                     firstWorksheet.View.TabSelected = true;
                 }
 
-                // コールバック作成.
-
-                var ignoreWrapColumn = new int[]
-                {
-                    Constants.GuidColumn,
-                    Constants.EnumNameColumn,
-                };
-
-                Func<int, int, string, bool> wrapTextCallback = (r, c, text) =>
-                {
-                    var result = true;
-
-                    // 除外対象に含まれていない.
-                    result &= !ignoreWrapColumn.Contains(c);
-                    // 改行が含まれている.
-                    result &= text.FixLineEnd().Contains("\n");
-
-                    return result;
-                };
-
                 // レコード情報設定.
 
                 foreach (var data in sheetData)
@@ -138,8 +118,6 @@ namespace TextDataConverter
                     if (records == null) { continue; }
 
                     worksheet.SetValue(Constants.SheetNameAddress.Y, Constants.SheetNameAddress.X, data.sheetName);
-
-                    SetGuid(worksheet, Constants.SheetGuidAddress.Y, Constants.SheetGuidAddress.X, data.guid);
 
                     // カラム初期幅.
 
@@ -178,9 +156,6 @@ namespace TextDataConverter
                         var r = Constants.RecordStartRow + i;
 
                         var record = records[i];
-
-                        // Guid.
-                        SetGuid(worksheet, r, Constants.GuidColumn, record.guid);
 
                         // Enum名.
                         worksheet.SetValue(r, Constants.EnumNameColumn, record.enumName);
@@ -241,9 +216,6 @@ namespace TextDataConverter
                         }
                     }
 
-                    // GUID行は幅固定.
-                    worksheet.Column(Constants.GuidColumn).Width = 20d;
-
                     ConsoleUtility.Task("- {0}", data.displayName);                    
                 }
 
@@ -258,13 +230,6 @@ namespace TextDataConverter
             var destCell = worksheet.Cells[row, column];
 
             srcCell.Copy(destCell);
-        }
-
-        private static void SetGuid(ExcelWorksheet worksheet, int row, int column, string guid)
-        {
-            worksheet.SetValue(row, column, guid);
-
-            worksheet.Cells[row, column].Style.Font.Size = 5;
         }
     }
 }
