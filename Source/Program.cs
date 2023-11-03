@@ -44,6 +44,20 @@ namespace TextDataConverter
 
             var mode = options.Value.Mode;
 
+            /*=== 開発用 ========================================
+
+            #if DEBUG
+
+            workspace = @"";
+
+            mode = "export";
+            
+            Directory.SetCurrentDirectory(workspace);
+
+            #endif
+
+            //==================================================*/
+
             // 設定ファイル.
 
             var settings = new Settings();
@@ -55,22 +69,6 @@ namespace TextDataConverter
 
             // EPPlus License setup.
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-            /*=== 開発用 ========================================
-
-            #if DEBUG
-
-            var currentDirectory = @"";
-
-            workspace = @"";
-
-            mode = "import";
-            
-            Directory.SetCurrentDirectory(currentDirectory);
-
-            #endif
-
-            //==================================================*/
 
             Console.WriteLine();
 

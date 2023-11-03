@@ -60,7 +60,9 @@ namespace TextDataConverter
                     var existSheetData = LoadExistSheetData(workspace, sheetEnumName, settings);
                     
                     // データが出力されていない場合は新規Guidを割り当て.
-                    var sheetGuid = string.IsNullOrEmpty(existSheetData.guid) ? Guid.NewGuid().ToString("N") : existSheetData.guid;
+                    var sheetGuid = existSheetData == null || string.IsNullOrEmpty(existSheetData.guid) ? 
+                            Guid.NewGuid().ToString("N") : 
+                            existSheetData.guid;
 
                     var sheetData = new SheetData()
                     {
@@ -81,7 +83,7 @@ namespace TextDataConverter
 
                         var recordGuid = string.Empty;
 
-                        // データが出力されていない場合は新規Guidを割り当て.
+                        // 既存のデータがある場合.
 
                         if (existSheetData != null && existSheetData.records != null)
                         {
