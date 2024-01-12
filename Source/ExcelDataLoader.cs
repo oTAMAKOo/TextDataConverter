@@ -77,34 +77,34 @@ namespace TextDataConverter
                     {
                         var rowValues = ExcelUtility.GetRowValues(worksheet, r).ToArray();
 
+                        var guid = ExcelUtility.ConvertValue<string>(rowValues, Constants.GuidColumn - 1);
+
                         var enumName = ExcelUtility.ConvertValue<string>(rowValues, Constants.EnumNameColumn - 1);
 
                         if (string.IsNullOrEmpty(enumName)) { continue; }
-
-                        var recordGuid = string.Empty;
 
                         // 既存のデータがある場合.
 
                         if (existSheetData != null && existSheetData.records != null)
                         {
-                            var existRecordData = existSheetData.records.FirstOrDefault(x => x.enumName == enumName);
+                            var existRecordData = existSheetData.records.FirstOrDefault(x => x.guid == guid);
 
                             if (existRecordData != null)
                             {
-                                recordGuid = existRecordData.guid;
+                                guid = existRecordData.guid;
                             }
                         }
 
-                        if (string.IsNullOrEmpty(recordGuid))
+                        if (string.IsNullOrEmpty(guid))
                         {
-                            recordGuid = Guid.NewGuid().ToString("N");
+                            guid = Guid.NewGuid().ToString("N");
                         }
 
                         var description = ExcelUtility.ConvertValue<string>(rowValues, Constants.DescriptionColumn - 1);
 
                         var record = new RecordData()
                         {
-                            guid = recordGuid,
+                            guid = guid,
                             enumName = enumName,
                             description = description,
                         };
