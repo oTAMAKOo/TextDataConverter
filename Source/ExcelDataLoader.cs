@@ -55,7 +55,7 @@ namespace TextDataConverter
                     var sheetEnumName = ExcelUtility.ConvertValue<string>(sheetEnumNameValue);
 
                     if (string.IsNullOrEmpty(sheetEnumName)) { continue; }
-
+                    
                     // 既にシートデータがある場合は読み込み.
                     var existSheetData = LoadExistSheetData(workspace, sheetEnumName, settings);
                     
@@ -87,7 +87,20 @@ namespace TextDataConverter
 
                         if (existSheetData != null && existSheetData.records != null)
                         {
-                            var existRecordData = existSheetData.records.FirstOrDefault(x => x.guid == guid);
+                            RecordData existRecordData = null;
+
+                            // 既に出力済みだがインポートしていない状態でシートにGUIDが登録されていない.
+
+                            existRecordData = existSheetData.records.FirstOrDefault(x => x.enumName == enumName);
+
+                            if (existRecordData != null)
+                            {
+                                guid = existRecordData.guid;
+                            }
+
+                            // 既に出力済みでGUIDが割り振り済み.
+
+                            existRecordData = existSheetData.records.FirstOrDefault(x => x.guid == guid);
 
                             if (existRecordData != null)
                             {
