@@ -83,7 +83,9 @@ namespace TextDataConverter
 
             if (excelSettings == null) { return false; }
 
-            IgnoreSheetNames = excelSettings.ignoreSheetNames.Split(',').Select(x => x.Trim()).ToArray();
+            IgnoreSheetNames = string.IsNullOrEmpty(excelSettings.ignoreSheetNames)
+                ? Array.Empty<string>()
+                : excelSettings.ignoreSheetNames.Split(',').Select(x => x.Trim()).ToArray();
 
             return true;
         }

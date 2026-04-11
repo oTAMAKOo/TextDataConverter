@@ -28,7 +28,7 @@ namespace Extensions
         /// <summary> 改行コードを統一 </summary>
         public static string FixLineEnd(this string value, string newLineStr = "\n")
         {
-            if (string.IsNullOrEmpty(value)) { return null; }
+            if (string.IsNullOrEmpty(value)) { return value; }
 
             var regex = new Regex(@"\r|\r\n");
 

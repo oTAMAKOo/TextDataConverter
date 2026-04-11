@@ -120,6 +120,11 @@ namespace TextDataConverter
         {
             var sheetData = ExcelDataLoader.LoadSheetData(workspace, settings);
 
+            if (sheetData == null)
+            {
+                throw new FileNotFoundException($"Excel file not found. FileName = {settings.EditExcelFileName}");
+            }
+
             var duplicates = sheetData.GroupBy(x => x.sheetName)
                 .Where(x => 1 < x.Count())
                 .Select(g => g.Key)
@@ -144,6 +149,11 @@ namespace TextDataConverter
             DataWriter.WriteAllSheetData(workspace, sheetData, settings);
 
             var sheetNames = ExcelDataLoader.LoadSheetNames(workspace, settings);
+
+            if (sheetNames == null)
+            {
+                throw new FileNotFoundException($"Excel file not found. FileName = {settings.EditExcelFileName}");
+            }
 
             DataWriter.WriteSheetIndex(workspace, sheetNames, settings);
         }

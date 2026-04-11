@@ -32,7 +32,7 @@ namespace Extensions
 
             var endAddress = worksheet.Cells.End;
 
-            if (endAddress.Row <= row || endAddress.Column <= column) { return false; }
+            if (endAddress.Row < row || endAddress.Column < column) { return false; }
 
             return true;
         }

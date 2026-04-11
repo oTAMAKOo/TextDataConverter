@@ -46,7 +46,7 @@ namespace TextDataConverter
             {
                 foreach (var worksheet in excel.Workbook.Worksheets)
                 {
-                    if (worksheet.Name == settings.TemplateSheetName) { continue; }
+                    if (string.Equals(worksheet.Name, settings.TemplateSheetName, StringComparison.OrdinalIgnoreCase)) { continue; }
 
                     if (settings.IgnoreSheetNames.Contains(worksheet.Name)) { continue; }
 

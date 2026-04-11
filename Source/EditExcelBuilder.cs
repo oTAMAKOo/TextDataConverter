@@ -17,7 +17,7 @@ namespace TextDataConverter
 
         public static void Build(string workspace, IndexData indexData, SheetData[] sheetData, Settings settings)
         {
-            var originExcelPath = Path.GetRelativePath(workspace, settings.ExcelPath);
+            var originExcelPath = Path.GetFullPath(PathUtility.Combine(workspace, settings.ExcelPath));
 
             var editExcelPath = PathUtility.Combine(workspace, settings.EditExcelFileName);
 
@@ -44,7 +44,7 @@ namespace TextDataConverter
 
                 // テンプレートシート.
 
-                var templateSheet = worksheets.FirstOrDefault(x => x.Name.ToLower() == settings.TemplateSheetName);
+                var templateSheet = worksheets.FirstOrDefault(x => string.Equals(x.Name, settings.TemplateSheetName, StringComparison.OrdinalIgnoreCase));
 
                 if (templateSheet == null)
                 {
