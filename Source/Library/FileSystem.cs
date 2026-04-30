@@ -1,7 +1,9 @@
 ﻿
+using System;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
+using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 
 namespace Extensions
@@ -62,51 +64,125 @@ namespace Extensions
             }
         }
 
-        public static T LoadFile<T>(string filePath, Format format) where T : class 
+        public static T LoadFile<T>(string filePath, Format format) where T : class
         {
             if (!File.Exists(filePath)) { return null; }
 
             T result = null;
 
+            string contents = null;
+
             using (var file = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 using (var reader = new StreamReader(file, new UTF8Encoding(false)))
                 {
-                    switch (format)
+                    contents = reader.ReadToEnd();
+                }
+            }
+
+            switch (format)
+            {
+                case Format.Json:
                     {
-                        case Format.Json:
+                        try
+                        {
+                            using (var stringReader = new StringReader(contents))
+                            using (var jsonTextReader = new JsonTextReader(stringReader))
                             {
-                                using (var jsonTextReader = new JsonTextReader(reader))
+                                var jsonSerializer = new JsonSerializer()
                                 {
-                                    var jsonSerializer = new JsonSerializer()
-                                    {
-                                        Formatting = Formatting.Indented,
-                                        NullValueHandling = NullValueHandling.Ignore,
-                                    };
+                                    Formatting = Formatting.Indented,
+                                    NullValueHandling = NullValueHandling.Ignore,
+                                };
 
-                                    result = jsonSerializer.Deserialize<T>(jsonTextReader);
-                                }
+                                result = jsonSerializer.Deserialize<T>(jsonTextReader);
                             }
-                            break;
+                        }
+                        catch (JsonException e)
+                        {
+                            var line = 0;
+                            var column = 0;
 
-                        case Format.Yaml:
+                            if (e is JsonReaderException readerEx)
                             {
-                                var contents = reader.ReadToEnd();
-
-                                var builder = new DeserializerBuilder();
-
-                                builder.IgnoreUnmatchedProperties();
-
-                                var yamlDeserializer = builder.Build();
-                                
-                                result = yamlDeserializer.Deserialize<T>(contents);
+                                line = readerEx.LineNumber;
+                                column = readerEx.LinePosition;
                             }
-                            break;
+                            else if (e is JsonSerializationException serializeEx)
+                            {
+                                line = serializeEx.LineNumber;
+                                column = serializeEx.LinePosition;
+                            }
+
+                            throw new Exception(BuildLoadErrorMessage(filePath, contents, line, column, e.Message), e);
+                        }
+                    }
+                    break;
+
+                case Format.Yaml:
+                    {
+                        try
+                        {
+                            var builder = new DeserializerBuilder();
+
+                            builder.IgnoreUnmatchedProperties();
+
+                            var yamlDeserializer = builder.Build();
+
+                            result = yamlDeserializer.Deserialize<T>(contents);
+                        }
+                        catch (YamlException e)
+                        {
+                            var line = e.Start.Line;
+                            var column = e.Start.Column;
+                            var innerMessage = e.InnerException != null ? e.InnerException.Message : e.Message;
+
+                            throw new Exception(BuildLoadErrorMessage(filePath, contents, line, column, innerMessage), e);
+                        }
+                    }
+                    break;
+            }
+
+            return result;
+        }
+
+        // デシリアライズエラー用メッセージ生成(エラー位置の周辺行を含む).
+        private static string BuildLoadErrorMessage(string filePath, string contents, int line, int column, string innerMessage)
+        {
+            var builder = new StringBuilder();
+
+            builder.AppendLine();
+            builder.AppendFormat("Failed to deserialize file.").AppendLine();
+            builder.AppendFormat("  File    : {0}", filePath).AppendLine();
+            builder.AppendFormat("  Position: Line {0}, Column {1}", line, column).AppendLine();
+            builder.AppendFormat("  Reason  : {0}", innerMessage).AppendLine();
+
+            // エラー位置周辺の内容を表示.
+            if (!string.IsNullOrEmpty(contents) && 0 < line)
+            {
+                var lines = contents.Replace("\r\n", "\n").Replace("\r", "\n").Split('\n');
+
+                var startLine = Math.Max(1, line - 3);
+                var endLine = Math.Min(lines.Length, line + 3);
+
+                builder.AppendLine();
+                builder.AppendLine("--- Context ---");
+
+                for (var i = startLine; i <= endLine; i++)
+                {
+                    var marker = (i == line) ? ">>" : "  ";
+
+                    builder.AppendFormat("{0} {1,5}: {2}", marker, i, lines[i - 1]).AppendLine();
+
+                    // エラー列を指す矢印を出力.
+                    if (i == line && 0 < column)
+                    {
+                        builder.Append("        ").Append(' ', column - 1).AppendLine("^");
                     }
                 }
             }
 
-            return result;
+            return builder.ToString();
         }
     }
 }
