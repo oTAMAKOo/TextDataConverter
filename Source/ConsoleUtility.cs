@@ -27,7 +27,8 @@ namespace TextDataConverter
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
 
-            Console.WriteLine(message);
+            // 呼び出し元プロセスへ伝える為に標準エラー出力へ出力する.
+            Console.Error.WriteLine(message);
 
             Console.ResetColor();
         }
@@ -43,7 +44,8 @@ namespace TextDataConverter
         {
             Console.ForegroundColor = ConsoleColor.Red;
 
-            Console.WriteLine(message);
+            // 呼び出し元プロセスへ伝える為に標準エラー出力へ出力する.
+            Console.Error.WriteLine(message);
 
             Console.ResetColor();
         }

@@ -146,6 +146,33 @@ namespace TextDataConverter
                 return;
             }
 
+            var duplicateEnumNames = sheetData
+                .Where(x => x.records != null)
+                .SelectMany(x => x.records.GroupBy(y => y.enumName)
+                    .Where(y => 1 < y.Count())
+                    .Select(y => string.Format("SheetName = {0}, EnumName = {1}", x.sheetName, y.Key)))
+                .ToArray();
+
+            if (duplicateEnumNames.Any())
+            {
+                var builder = new StringBuilder();
+
+                builder.AppendLine();
+
+                foreach (var item in duplicateEnumNames)
+                {
+                    builder.AppendFormat("Duplicate enum name exists. {0}", item).AppendLine();
+                }
+
+                Exit(1, builder.ToString());
+
+                return;
+            }
+
+            // テキストGuidの重複を解消.
+
+            ExcelDataLoader.ResolveDuplicateGuid(workspace, sheetData, settings);
+
             DataWriter.WriteAllSheetData(workspace, sheetData, settings);
 
             var sheetNames = ExcelDataLoader.LoadSheetNames(workspace, settings);
@@ -165,8 +192,8 @@ namespace TextDataConverter
                 ConsoleUtility.Error(message);
             }
 
-            // 正常終了以外ならコンソールを閉じない.
-            if (exitCode != 0)
+            // 正常終了以外ならコンソールを閉じない. (出力がリダイレクトされている場合は他プロセスから実行されているので入力待ちしない)
+            if (exitCode != 0 && !Console.IsOutputRedirected)
             {
                 Console.ReadLine();
             }

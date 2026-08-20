@@ -11,6 +11,13 @@ namespace TextDataConverter
 {
     public static class ExcelDataLoader
     {
+        private sealed class RecordEntry
+        {
+            public SheetData sheet = null;
+
+            public RecordData record = null;
+        }
+
         /// <summary> シート名一覧読み込み(.xlsx) </summary>
         public static string[] LoadSheetNames(string workspace, Settings settings)
         {
@@ -179,6 +186,109 @@ namespace TextDataConverter
             }
 
             return sheets.ToArray();
+        }
+
+        /// <summary> テキストGuidの重複を解消 </summary>
+        public static void ResolveDuplicateGuid(string workspace, SheetData[] sheets, Settings settings)
+        {
+            // 出力済みデータでGuidを保有しているレコード. (Guidが競合した場合に元の保有者へGuidを残す為)
+
+            var guidOwners = new Dictionary<string, string>();
+
+            foreach (var sheet in sheets)
+            {
+                var existSheetData = LoadExistSheetData(workspace, sheet.sheetName, settings);
+
+                if (existSheetData == null) { continue; }
+
+                if (existSheetData.records == null) { continue; }
+
+                foreach (var record in existSheetData.records)
+                {
+                    if (string.IsNullOrEmpty(record.guid)) { continue; }
+
+                    if (guidOwners.ContainsKey(record.guid)) { continue; }
+
+                    guidOwners.Add(record.guid, BuildRecordKey(existSheetData.sheetName, record.enumName));
+                }
+            }
+
+            // Guidが重複するレコードには新規Guidを発行.
+
+            var assignedRecords = new Dictionary<string, RecordEntry>();
+
+            var reassignedLogs = new List<string>();
+
+            foreach (var sheet in sheets)
+            {
+                if (sheet.records == null) { continue; }
+
+                foreach (var record in sheet.records)
+                {
+                    var entry = new RecordEntry() { sheet = sheet, record = record };
+
+                    var assignedRecord = assignedRecords.GetValueOrDefault(record.guid);
+
+                    if (assignedRecord == null)
+                    {
+                        assignedRecords.Add(record.guid, entry);
+
+                        continue;
+                    }
+
+                    // 出力済みデータでGuidを保有していたレコードにGuidを残す. (既存のテキスト参照を壊さない為)
+
+                    var recordKey = BuildRecordKey(sheet.sheetName, record.enumName);
+
+                    var target = entry;
+
+                    if (guidOwners.GetValueOrDefault(record.guid) == recordKey)
+                    {
+                        target = assignedRecord;
+
+                        assignedRecords[record.guid] = entry;
+                    }
+
+                    var newGuid = GenerateGuid(assignedRecords);
+
+                    reassignedLogs.Add(string.Format("- {0} : {1} -> {2}", BuildRecordKey(target.sheet.sheetName, target.record.enumName), target.record.guid, newGuid));
+
+                    target.record.guid = newGuid;
+
+                    assignedRecords.Add(newGuid, target);
+                }
+            }
+
+            if (reassignedLogs.IsEmpty()) { return; }
+
+            ConsoleUtility.Warning("------ Duplicate text guid ------");
+
+            foreach (var log in reassignedLogs)
+            {
+                ConsoleUtility.Warning(log);
+            }
+
+            ConsoleUtility.Warning("");
+            ConsoleUtility.Warning("New guid was assigned. Run import to apply to excel.");
+        }
+
+        /// <summary> 未使用のGuidを発行 </summary>
+        private static string GenerateGuid(Dictionary<string, RecordEntry> assignedRecords)
+        {
+            var guid = Guid.NewGuid().ToString("N");
+
+            while (assignedRecords.ContainsKey(guid))
+            {
+                guid = Guid.NewGuid().ToString("N");
+            }
+
+            return guid;
+        }
+
+        /// <summary> レコード識別名を取得 </summary>
+        private static string BuildRecordKey(string sheetName, string enumName)
+        {
+            return string.Format("{0}-{1}", sheetName, enumName);
         }
 
         private static SheetData LoadExistSheetData(string workspace, string sheetName, Settings settings)
