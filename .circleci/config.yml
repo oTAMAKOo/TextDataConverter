@@ -1,0 +1,12 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: mono:5.20.1.19
+    steps:
+      - checkout
+      - run: mono /usr/lib/mono/msbuild/15.0/bin/MSBuild.dll
+      - run: mv /root/project/bin/Debug /root/project/bin/Linux
+      - run: cd /root/project/bin && tar czvf Linux.tgz Linux
+      - store_artifacts:
+          path: /root/project/bin/Linux.tgz
